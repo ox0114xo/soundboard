@@ -6,6 +6,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>吵架神器</title>
+
+<link rel="icon" href="https://files.catbox.moe/b2hi8n.png">
+<link rel="apple-touch-icon" href="https://files.catbox.moe/b2hi8n.png">
+
 <style>
   /* --- 基礎設定 --- */
   body {
@@ -112,10 +116,10 @@
     opacity: 1 !important;
   }
 
-  /* --- 🌟 新增：加入主畫面提示橫幅 --- */
+  /* --- 加入主畫面提示橫幅 --- */
   #install-prompt {
     position: fixed;
-    bottom: -100px; /* 預設藏在畫面下方 */
+    bottom: -100px; 
     left: 5%;
     width: 90%;
     background: #333;
@@ -133,7 +137,7 @@
     line-height: 1.5;
   }
   #install-prompt.show {
-    bottom: 20px; /* 滑出顯示 */
+    bottom: 20px; 
   }
   .install-text {
     flex-grow: 1;
@@ -181,16 +185,12 @@
     let gainNode = null;
     let currentSource = null;
 
-    // --- 🌟 新增：偵測與顯示加入主畫面提示 ---
+    // 偵測與顯示加入主畫面提示
     window.addEventListener('DOMContentLoaded', () => {
-      // 判斷是否為手機裝置
       const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-      // 判斷是否已經是以 App (獨立視窗) 模式開啟
       const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-      // 判斷使用者是否曾經點過關閉按鈕
       const isClosedBefore = localStorage.getItem('hideInstallPrompt') === 'true';
 
-      // 如果是手機 + 不是 App 模式 + 沒關閉過 ➡️ 延遲 2 秒後彈出提示
       if (isMobile && !isStandalone && !isClosedBefore) {
         setTimeout(() => {
           document.getElementById('install-prompt').classList.add('show');
@@ -198,12 +198,10 @@
       }
     });
 
-    // 關閉橫幅並記錄到瀏覽器
     function closeInstallPrompt() {
       document.getElementById('install-prompt').classList.remove('show');
       localStorage.setItem('hideInstallPrompt', 'true');
     }
-    // ---------------------------------------------
 
     // 讀取 Google Sheet
     fetch(googleSheetUrl)
@@ -218,7 +216,6 @@
         if(loadingEl) loadingEl.innerText = "讀取失敗，請檢查網路狀態";
       });
 
-    // 解析 CSV
     function parseAndCreateButtons(csvText) {
       const rows = csvText.split('\n');
       let validButtonCount = 0;
@@ -236,7 +233,6 @@
       }
     }
 
-    // 建立按鈕
     function createButton(text, url1, url2, index) {
       const btn = document.createElement('button');
       btn.className = 'key-cap';
@@ -249,7 +245,6 @@
       keyboardContainer.appendChild(btn);
     }
 
-    // 浮動提示
     function showMessage(msg) {
       const toast = document.getElementById('toast');
       toast.innerText = msg;
@@ -257,7 +252,6 @@
       setTimeout(() => { toast.classList.remove('show-toast'); }, 2500);
     }
 
-    // 播放總控制 
     function playAudio(primaryUrl, backupUrl) {
       if (navigator.vibrate) navigator.vibrate(50);
       if (currentPlayer) {
@@ -275,7 +269,6 @@
       attemptPlay(primaryUrl, backupUrl, false, 1000, true);
     }
 
-    // 核心播放 (支援自動降級為原音量)
     function attemptPlay(urlToPlay, fallbackUrl, isFallback, timeoutDuration, useBoost) {
       if (!urlToPlay) {
         if (!isFallback && fallbackUrl) {
