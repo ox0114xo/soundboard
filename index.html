@@ -7,13 +7,11 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>吵架神器</title>
 
-<link rel="icon" type="image/png" sizes="512x512" href="https://files.catbox.moe/b2hi8n.png?v=2">
-<link rel="apple-touch-icon" sizes="512x512" href="https://files.catbox.moe/b2hi8n.png?v=2">
-
+<link rel="icon" type="image/png" sizes="512x512" href="https://files.catbox.moe/b2hi8n.png?v=3">
+<link rel="apple-touch-icon" sizes="512x512" href="https://files.catbox.moe/b2hi8n.png?v=3">
 <link rel="manifest" href="manifest.json">
 
 <style>
-  /* --- 基礎設定 --- */
   body {
     background: #ffffff;
     display: flex;
@@ -23,12 +21,10 @@
     padding: 40px 0;
     font-family: "Microsoft JhengHei", sans-serif;
     overflow-y: auto; 
-    /* 防止選取文字 */
     -webkit-user-select: none;
     user-select: none;
   }
 
-  /* --- 鍵盤底座 --- */
   .keyboard-base {
     background: #f0f0f0;
     width: 90%;
@@ -43,7 +39,6 @@
     height: auto; 
   }
 
-  /* --- 鍵帽樣式 --- */
   .key-cap {
     width: 100%;
     aspect-ratio: 1.4 / 1; 
@@ -71,7 +66,6 @@
     word-break: break-word;
   }
 
-  /* --- 自動循環配色 --- */
   .color-0 { background: #ff5f6d; color: #fff; box-shadow: 0 6px 0 #d33f49; }
   .color-1 { background: #ffdb3d; color: #5d4a00; box-shadow: 0 6px 0 #e0b300; }
   .color-2 { background: #6bcb77; color: #fff; box-shadow: 0 6px 0 #3e9c4b; }
@@ -82,7 +76,6 @@
     box-shadow: 0 0 0 #333;
   }
   
-  /* --- 系統提示訊息 --- */
   #loading {
     position: fixed; 
     top: 10px;
@@ -109,6 +102,287 @@
     font-size: 15px;
     font-weight: bold;
     opacity: 0; 
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 100;
+    white-space: nowrap;
+  }
+  .show-toast {
+    opacity: 1 !important;
+  }
+
+  /* --- 智慧型提示橫幅 --- */
+  #install-prompt {
+    position: fixed;
+    bottom: -100px; 
+    left: 5%;
+    width: 90%;
+    background: #333;
+    color: #fff;
+    padding: 15px 20px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-sizing: border-box;
+    transition: bottom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    z-index: 999;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  #install-prompt.show { bottom: 20px; }
+  .install-text { flex-grow: 1; margin-right: 15px; }
+  
+  /* 安卓專屬一鍵安裝按鈕 */
+  #install-btn {
+    display: none; /* 預設隱藏，符合條件才顯示 */
+    background: #ffdb3d;
+    color: #5d4a00;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 14px;
+    cursor: pointer;
+    margin-right: 10px;
+    flex-shrink: 0;
+  }
+  
+  .install-close {
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: white;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+</style>
+</head>
+<body>
+
+  <div id="loading">正在連線到試算表...</div>
+  <div id="toast">提示訊息</div>
+
+  <div id="install-prompt">
+    <div class="install-text" id="install-text-content">
+      💡 <b>想要秒開神器？</b><br>
+      點擊瀏覽器分享選單，選擇<b>「加到主畫面」</b>！
+    </div>
+    <button id="install-btn">一鍵安裝</button>
+    <button class="install-close" onclick="closeInstallPrompt()">✕</button>
+  </div>
+
+  <div class="keyboard-base" id="keyboard"></div>
+
+  <script>
+    const googleSheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vROxIxBE1TSv_SAP17SGB4zfCC5QQvTycjUpSf366-OO-2MWB6xSPS6-SdBJ0azjBkEXd6JNohJvWbZ/pub?output=csv";
+
+    const keyboardContainer = document.getElementById('keyboard');
+    let currentPlayer = null;
+    let timeoutId = null; 
+    let audioCtx = null;
+    let gainNode = null;
+    let currentSource = null;
+
+    // --- 🌟 PWA 一鍵安裝核心邏輯 ---
+    let deferredPrompt;
+    const installPromptEl = document.getElementById('install-prompt');
+    const installBtn = document.getElementById('install-btn');
+    const installTextContent = document.getElementById('install-text-content');
+    const isClosedBefore = localStorage.getItem('hideInstallPrompt') === 'true';
+
+    // 1. 攔截 Chrome 的原生安裝事件 (僅安卓支援)
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault(); // 阻止 Chrome 自動彈出醜醜的預設提示
+      deferredPrompt = e; // 把事件存起來，等按鈕按下去再觸發
+      
+      // 既然支援一鍵安裝，就更改文字並顯示按鈕！
+      installTextContent.innerHTML = "💡 <b>免找選單！</b><br>點擊右方按鈕，直接安裝到桌面！";
+      installBtn.style.display = "block";
+      
+      if (!isClosedBefore) {
+        installPromptEl.classList.add('show');
+      }
+    });
+
+    // 2. 點擊一鍵安裝按鈕的動作
+    installBtn.addEventListener('click', async () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt(); // 喚醒系統原生安裝視窗
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+          closeInstallPrompt(); // 如果用戶按了同意安裝，就關閉橫幅
+        }
+        deferredPrompt = null;
+      }
+    });
+
+    // 3. 通用顯示邏輯 (延遲 2 秒滑出)
+    window.addEventListener('DOMContentLoaded', () => {
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+
+      if (isMobile && !isStandalone && !isClosedBefore) {
+        setTimeout(() => {
+          installPromptEl.classList.add('show');
+        }, 2000);
+      }
+    });
+
+    function closeInstallPrompt() {
+      installPromptEl.classList.remove('show');
+      localStorage.setItem('hideInstallPrompt', 'true');
+    }
+    // ------------------------------------
+
+    fetch(googleSheetUrl)
+      .then(response => response.text())
+      .then(csvText => {
+        const loadingEl = document.getElementById('loading');
+        if(loadingEl) loadingEl.style.display = 'none'; 
+        parseAndCreateButtons(csvText);
+      })
+      .catch(error => {
+        const loadingEl = document.getElementById('loading');
+        if(loadingEl) loadingEl.innerText = "讀取失敗，請檢查網路狀態";
+      });
+
+    function parseAndCreateButtons(csvText) {
+      const rows = csvText.split('\n');
+      let validButtonCount = 0;
+      for (let i = 1; i < rows.length; i++) {
+        const row = rows[i].trim();
+        if (!row) continue;
+        const cols = row.split(',');
+        const name = cols[0] ? cols[0].trim() : "";
+        const url1 = cols[1] ? cols[1].trim() : "";
+        const url2 = cols[2] ? cols[2].trim() : ""; 
+        if (name && url1) {
+          createButton(name, url1, url2, validButtonCount);
+          validButtonCount++;
+        }
+      }
+    }
+
+    function createButton(text, url1, url2, index) {
+      const btn = document.createElement('button');
+      btn.className = 'key-cap';
+      btn.classList.add(`color-${index % 4}`);
+      const span = document.createElement('span');
+      span.className = 'key-top';
+      span.innerHTML = text.replace(/\\n/g, '<br>');
+      btn.appendChild(span);
+      btn.onclick = function() { playAudio(url1, url2); };
+      keyboardContainer.appendChild(btn);
+    }
+
+    function showMessage(msg) {
+      const toast = document.getElementById('toast');
+      toast.innerText = msg;
+      toast.classList.add('show-toast');
+      setTimeout(() => { toast.classList.remove('show-toast'); }, 2500);
+    }
+
+    function playAudio(primaryUrl, backupUrl) {
+      if (navigator.vibrate) navigator.vibrate(50);
+      if (currentPlayer) {
+        currentPlayer.pause();
+        currentPlayer.src = ''; 
+        currentPlayer = null;
+      }
+      if (currentSource) {
+        currentSource.disconnect();
+        currentSource = null;
+      }
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+      attemptPlay(primaryUrl, backupUrl, false, 1000, true);
+    }
+
+    function attemptPlay(urlToPlay, fallbackUrl, isFallback, timeoutDuration, useBoost) {
+      if (!urlToPlay) {
+        if (!isFallback && fallbackUrl) {
+          attemptPlay(fallbackUrl, null, true, 2000, true);
+        } else {
+          showMessage("音效網址無效 🔇");
+        }
+        return;
+      }
+
+      currentPlayer = new Audio(urlToPlay);
+      
+      if (useBoost) {
+        currentPlayer.crossOrigin = "anonymous";
+        try {
+          if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          }
+          if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+          }
+          currentSource = audioCtx.createMediaElementSource(currentPlayer);
+          if (!gainNode) {
+            gainNode = audioCtx.createGain();
+            gainNode.connect(audioCtx.destination);
+          }
+          gainNode.gain.value = 10.0; 
+          currentSource.connect(gainNode);
+        } catch (e) {
+          console.log("混音器遭阻擋", e);
+        }
+      }
+
+      let playPromise = currentPlayer.play();
+
+      timeoutId = setTimeout(() => {
+        if (currentPlayer) {
+          currentPlayer.pause();
+          currentPlayer.src = ''; 
+        }
+        if (!isFallback && fallbackUrl) {
+          showMessage("主線路卡頓，切換備用... 🔄");
+          attemptPlay(fallbackUrl, null, true, 2000, true); 
+        } else {
+          showMessage("伺服器忙線中，請稍後再試 🕒");
+        }
+      }, timeoutDuration);
+
+      if (playPromise !== undefined) {
+        playPromise.then(() => {
+          clearTimeout(timeoutId); 
+        }).catch(error => {
+          clearTimeout(timeoutId);
+          if (error.name !== 'AbortError') {
+            if (useBoost) {
+              if (currentSource) {
+                currentSource.disconnect();
+                currentSource = null;
+              }
+              currentPlayer.src = ''; 
+              attemptPlay(urlToPlay, fallbackUrl, isFallback, timeoutDuration, false);
+            } else {
+              if (!isFallback && fallbackUrl) {
+                showMessage("主線路失效，切換備用... 🔄");
+                attemptPlay(fallbackUrl, null, true, 2000, true);
+              } else {
+                showMessage("播放失敗，請確認網址是否有效 🔇");
+              }
+            }
+          }
+        });
+      }
+    }
+  </script>
+</body>
+</html>
     pointer-events: none;
     transition: opacity 0.3s ease;
     z-index: 100;
