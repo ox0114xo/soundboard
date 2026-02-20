@@ -138,6 +138,29 @@
         if (e.name !== 'AbortError') handleFail("🔄 嘗試切換...");
       });
     }
+
+    // --- 🤫 縮小/退到背景時立刻靜音 ---
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        // 如果網頁被隱藏（縮小），立刻暫停並清空目前的聲音
+        if (currentPlayer) {
+          currentPlayer.pause();
+          currentPlayer.src = '';
+        }
+        if (currentSource) {
+          currentSource.disconnect();
+          currentSource = null;
+        }
+        clearTimeout(timeoutId); // 取消任何正在準備切換的備用線路
+      } else {
+        // 當網頁重新打開時，喚醒混音器確保下一次按按鈕有聲音
+        if (audioCtx && audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+      }
+    });
+
+    
   </script>
 </body>
 </html>
