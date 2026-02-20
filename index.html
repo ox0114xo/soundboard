@@ -6,380 +6,137 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>吵架神器</title>
-
 <link rel="icon" type="image/png" sizes="512x512" href="IMG_20260220_102357.png?v=9">
 <link rel="apple-touch-icon" sizes="512x512" href="IMG_20260220_102357.png?v=9">
 <link rel="manifest" href="manifest.json?v=9">
-
 <style>
-  /* --- 科技暗黑風基礎排版 --- */
-  body {
-    background: #0a0a0c; /* 極致深黑背景 */
-    display: flex;
-    justify-content: center;
-    min-height: 100vh;
-    margin: 0;
-    padding: 40px 0;
-    font-family: "Microsoft JhengHei", -apple-system, sans-serif;
-    overflow-y: auto; 
-    -webkit-user-select: none;
-    user-select: none;
-  }
+  /* --- 極簡 UI 設定 --- */
+  body { background: #0a0a0c; display: flex; justify-content: center; min-height: 100vh; margin: 0; padding: 40px 0; font-family: sans-serif; user-select: none; -webkit-user-select: none; }
+  #keyboard { background: #1a1a1e; width: 90%; max-width: 400px; padding: 20px; border-radius: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.8), inset 0 2px 2px rgba(255,255,255,0.05); border: 1px solid #2a2a30; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; align-content: start; height: fit-content; }
+  .key-cap { aspect-ratio: 1.4/1; border: none; border-radius: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: clamp(18px, 5vw, 22px); font-weight: 900; text-shadow: 0 2px 4px rgba(0,0,0,0.4); transition: transform 0.1s; -webkit-tap-highlight-color: transparent; }
+  .key-cap:active { transform: translateY(6px); box-shadow: none !important; }
+  .key-top { pointer-events: none; text-align: center; padding: 5px; word-break: break-word; line-height: 1.2; }
 
-  /* 鍵盤底盤：消光黑 + 微微的邊框與反光 */
-  .keyboard-base {
-    background: #1a1a1e;
-    width: 90%;
-    max-width: 400px;
-    padding: 20px;
-    border-radius: 25px;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.8), inset 0 2px 2px rgba(255,255,255,0.05);
-    border: 1px solid #2a2a30;
-    display: grid;
-    grid-template-columns: 1fr 1fr; 
-    gap: 15px;
-    align-content: start;
-    height: fit-content; 
-  }
+  /* 8 色精簡化類別 */
+  .c0 { background: #FF1744; color: #fff; box-shadow: 0 6px 0 #900019, 0 10px 20px rgba(255,23,68,0.3); }
+  .c1 { background: #FFEA00; color: #111; box-shadow: 0 6px 0 #948800, 0 10px 20px rgba(255,234,0,0.2); text-shadow: none; }
+  .c2 { background: #00E676; color: #111; box-shadow: 0 6px 0 #008745, 0 10px 20px rgba(0,230,118,0.2); text-shadow: none; }
+  .c3 { background: #2979FF; color: #fff; box-shadow: 0 6px 0 #003db3, 0 10px 20px rgba(41,121,255,0.3); }
+  .c4 { background: #D500F9; color: #fff; box-shadow: 0 6px 0 #7b0091, 0 10px 20px rgba(213,0,249,0.3); }
+  .c5 { background: #00E5FF; color: #111; box-shadow: 0 6px 0 #008999, 0 10px 20px rgba(0,229,255,0.2); text-shadow: none; }
+  .c6 { background: #FF9100; color: #fff; box-shadow: 0 6px 0 #9e5a00, 0 10px 20px rgba(255,145,0,0.3); }
+  .c7 { background: #FF4081; color: #fff; box-shadow: 0 6px 0 #a3003c, 0 10px 20px rgba(255,64,129,0.3); }
 
-  /* 按鈕基礎形狀 */
-  .key-cap {
-    width: 100%;
-    aspect-ratio: 1.4 / 1; 
-    border: none;
-    border-radius: 15px;
-    position: relative;
-    cursor: pointer;
-    transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.1s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    outline: none;
-    -webkit-tap-highlight-color: transparent;
-    font-size: clamp(18px, 5vw, 22px);
-    font-weight: 900;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.4); /* 讓字體更銳利 */
-  }
+  /* 浮動視窗瘦身 */
+  #msg-box { position: fixed; top: 20px; background: rgba(30,30,35,0.95); color: #00E5FF; border: 1px solid #333; padding: 10px 25px; border-radius: 30px; font-weight: bold; box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 10; transition: 0.3s; }
+  #toast { position: fixed; bottom: 30px; background: rgba(20,20,25,0.95); color: #FFEA00; border: 1px solid #444; padding: 12px 24px; border-radius: 30px; font-weight: bold; opacity: 0; pointer-events: none; transition: 0.3s; z-index: 100; transform: translateY(20px); }
+  .show { opacity: 1 !important; transform: translateY(0) !important; }
 
-  /* 💥 RGB 8色 霓虹發光配色 💥 */
-  .color-0 { background: #FF1744; color: #fff; box-shadow: 0 6px 0 #900019, 0 10px 20px rgba(255, 23, 68, 0.3); } /* 血怒紅 */
-  .color-1 { background: #FFEA00; color: #111; box-shadow: 0 6px 0 #948800, 0 10px 20px rgba(255, 234, 0, 0.2); text-shadow: none; } /* 閃電黃 */
-  .color-2 { background: #00E676; color: #111; box-shadow: 0 6px 0 #008745, 0 10px 20px rgba(0, 230, 118, 0.2); text-shadow: none; } /* 毒液綠 */
-  .color-3 { background: #2979FF; color: #fff; box-shadow: 0 6px 0 #003db3, 0 10px 20px rgba(41, 121, 255, 0.3); } /* 脈衝藍 */
-  .color-4 { background: #D500F9; color: #fff; box-shadow: 0 6px 0 #7b0091, 0 10px 20px rgba(213, 0, 249, 0.3); } /* 電馭紫 */
-  .color-5 { background: #00E5FF; color: #111; box-shadow: 0 6px 0 #008999, 0 10px 20px rgba(0, 229, 255, 0.2); text-shadow: none; } /* 雷射青 */
-  .color-6 { background: #FF9100; color: #fff; box-shadow: 0 6px 0 #9e5a00, 0 10px 20px rgba(255, 145, 0, 0.3); } /* 核爆橘 */
-  .color-7 { background: #FF4081; color: #fff; box-shadow: 0 6px 0 #a3003c, 0 10px 20px rgba(255, 64, 129, 0.3); } /* 猛毒粉 */
-
-  .key-cap:active {
-    transform: translateY(6px);
-    box-shadow: 0 0 0 transparent;
-  }
-
-  .key-top {
-    pointer-events: none;
-    text-align: center;
-    line-height: 1.2;
-    padding: 5px;
-    word-break: break-word;
-  }
-  
-  /* --- 系統提示訊息黑化 --- */
-  #loading {
-    position: fixed; 
-    top: 20px;
-    background: rgba(30, 30, 35, 0.95); 
-    color: #00E5FF; /* 用霓虹青色顯示載入中 */
-    border: 1px solid #333;
-    padding: 10px 25px;
-    border-radius: 30px;
-    font-size: 14px;
-    font-weight: bold;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    z-index: 10;
-  }
-
-  #toast {
-    position: fixed;
-    bottom: 30px;
-    left: 50%;
-    transform: translateX(-50%) translateY(20px);
-    background: rgba(20, 20, 25, 0.95);
-    color: #FFEA00; /* 錯誤或提示用霓虹黃 */
-    border: 1px solid #444;
-    padding: 12px 24px;
-    border-radius: 30px;
-    font-size: 15px;
-    font-weight: bold;
-    opacity: 0; 
-    pointer-events: none;
-    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-    z-index: 100;
-    white-space: nowrap;
-    box-shadow: 0 15px 30px rgba(0,0,0,0.5);
-  }
-  .show-toast {
-    opacity: 1 !important;
-    transform: translateX(-50%) translateY(0) !important;
-  }
-
-  /* --- 安裝橫幅黑化 --- */
-  #install-prompt {
-    position: fixed;
-    bottom: -100px; 
-    left: 5%;
-    width: 90%;
-    max-width: 500px;
-    margin: 0 auto;
-    right: 0; 
-    background: rgba(25, 25, 30, 0.95);
-    backdrop-filter: blur(10px);
-    border: 1px solid #333;
-    color: #fff;
-    padding: 15px 20px;
-    border-radius: 16px;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.8);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    box-sizing: border-box;
-    transition: bottom 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    z-index: 999;
-    font-size: 14px;
-    line-height: 1.5;
-  }
-  #install-prompt.show { bottom: 25px; }
-  .install-text { flex-grow: 1; margin-right: 15px; }
-  
-  #install-btn {
-    background: #00E676; /* 安裝按鈕改成高亮毒液綠 */
-    color: #000;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 20px;
-    font-weight: 900;
-    font-size: 14px;
-    cursor: pointer;
-    margin-right: 12px;
-    flex-shrink: 0;
-    transition: transform 0.1s;
-    box-shadow: 0 0 10px rgba(0, 230, 118, 0.4);
-  }
-  #install-btn:active { transform: scale(0.95); }
-  
-  .install-close {
-    background: rgba(255,255,255,0.1);
-    border: none;
-    color: white;
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    font-size: 14px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-  }
+  #install-prompt { position: fixed; bottom: -100px; width: 90%; max-width: 500px; background: rgba(25,25,30,0.95); backdrop-filter: blur(10px); border: 1px solid #333; color: #fff; padding: 15px 20px; border-radius: 16px; display: flex; align-items: center; transition: 0.5s; z-index: 999; }
+  #install-prompt.up { bottom: 25px; }
+  #install-btn { background: #00E676; color: #000; border: none; padding: 8px 16px; border-radius: 20px; font-weight: bold; cursor: pointer; margin: 0 10px 0 auto; }
+  .close-btn { background: rgba(255,255,255,0.1); border: none; color: #fff; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; }
 </style>
 </head>
 <body>
 
-  <div id="loading">📡 正在連線到試算表...</div>
-  <div id="toast">提示訊息</div>
+  <div id="msg-box">📡 讀取中...</div>
+  <div id="toast"></div>
 
   <div id="install-prompt">
-    <div class="install-text">
-      💡 <b>想要秒開神器？</b><br>
-      把這個網頁加入主畫面，變成專屬 App！
-    </div>
+    <div style="flex-grow:1; line-height: 1.4;">💡 <b>秒開神器？</b><br>加入主畫面變專屬 App！</div>
     <button id="install-btn">安裝</button>
-    <button class="install-close" onclick="closeInstallPrompt()">✕</button>
+    <button class="close-btn" onclick="closePWA()">✕</button>
   </div>
 
-  <div class="keyboard-base" id="keyboard"></div>
+  <div id="keyboard"></div>
 
   <script>
-    const googleSheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vROxIxBE1TSv_SAP17SGB4zfCC5QQvTycjUpSf366-OO-2MWB6xSPS6-SdBJ0azjBkEXd6JNohJvWbZ/pub?output=csv";
+    const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vROxIxBE1TSv_SAP17SGB4zfCC5QQvTycjUpSf366-OO-2MWB6xSPS6-SdBJ0azjBkEXd6JNohJvWbZ/pub?output=csv";
+    const $ = id => document.getElementById(id); // 縮寫抓取元素工具
+    let audioCtx, gainNode, currentSource, currentPlayer, timeoutId, deferredPrompt;
 
-    const keyboardContainer = document.getElementById('keyboard');
-    let currentPlayer = null;
-    let timeoutId = null; 
-    let audioCtx = null;
-    let gainNode = null;
-    let currentSource = null;
+    const showToast = msg => {
+      $('toast').innerText = msg;
+      $('toast').classList.add('show');
+      setTimeout(() => $('toast').classList.remove('show'), 2500);
+    };
 
-    let deferredPrompt;
-    const installPromptEl = document.getElementById('install-prompt');
-    const installBtn = document.getElementById('install-btn');
-    const isClosedBefore = localStorage.getItem('hideInstallPrompt') === 'true';
-
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      installBtn.innerText = "⚡ 一鍵安裝";
-    });
-
-    installBtn.addEventListener('click', async () => {
+    // --- PWA 智慧安裝 ---
+    window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredPrompt = e; $('install-btn').innerText = "⚡ 一鍵安裝"; });
+    $('install-btn').onclick = async () => {
       if (deferredPrompt) {
         deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        if (outcome === 'accepted') closeInstallPrompt();
+        if ((await deferredPrompt.userChoice).outcome === 'accepted') closePWA();
         deferredPrompt = null;
       } else {
-        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-        if (isIOS) {
-          alert("🍎 蘋果手機請點擊底部「分享圖示 📤」，然後選擇「加入主畫面 ➕」即可完成安裝！");
-        } else {
-          alert("🤖 安卓手機請點擊右上角「三個點 ⋮ 」，然後選擇「加到主畫面」即可完成安裝！");
-        }
+        alert(/iPad|iPhone|iPod/.test(navigator.userAgent) ? "🍎 點擊底部「分享 📤」➔「加入主畫面 ➕」" : "🤖 點擊右上角「 ⋮ 」➔「加到主畫面」");
       }
-    });
+    };
+    const closePWA = () => { $('install-prompt').classList.remove('up'); localStorage.setItem('hidePWA', '1'); };
 
     window.addEventListener('DOMContentLoaded', () => {
-      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-      const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-
-      if (isMobile && !isStandalone && !isClosedBefore) {
-        setTimeout(() => installPromptEl.classList.add('show'), 1500);
+      if (/Mobile|Android|iPhone/i.test(navigator.userAgent) && !window.matchMedia('(display-mode: standalone)').matches && !localStorage.getItem('hidePWA')) {
+        setTimeout(() => $('install-prompt').classList.add('up'), 1500);
       }
     });
 
-    function closeInstallPrompt() {
-      installPromptEl.classList.remove('show');
-      localStorage.setItem('hideInstallPrompt', 'true');
-    }
-
-    fetch(googleSheetUrl)
-      .then(response => response.text())
-      .then(csvText => {
-        const loadingEl = document.getElementById('loading');
-        if(loadingEl) loadingEl.style.display = 'none'; 
-        parseAndCreateButtons(csvText);
-      })
-      .catch(error => {
-        document.getElementById('loading').innerText = "⚠️ 讀取失敗，請檢查網路狀態";
-      });
-
-    function parseAndCreateButtons(csvText) {
-      const rows = csvText.split('\n');
-      let validButtonCount = 0;
-      for (let i = 1; i < rows.length; i++) {
-        const row = rows[i].trim();
-        if (!row) continue;
-        const cols = row.split(',');
-        const name = cols[0] ? cols[0].trim() : "";
-        const url1 = cols[1] ? cols[1].trim() : "";
-        const url2 = cols[2] ? cols[2].trim() : ""; 
-        if (name && url1) {
-          createButton(name, url1, url2, validButtonCount);
-          validButtonCount++;
+    // --- 載入與生成按鈕 ---
+    fetch(SHEET_URL).then(r => r.text()).then(csv => {
+      $('msg-box').style.display = 'none';
+      let i = 0;
+      csv.split('\n').slice(1).forEach(row => {
+        const [name, u1, u2] = row.split(',').map(s => s?.trim());
+        if (name && u1) {
+          const btn = document.createElement('button');
+          btn.className = `key-cap c${i++ % 8}`; // 簡化 8 色邏輯
+          btn.innerHTML = `<span class="key-top">${name.replace(/\\n/g, '<br>')}</span>`;
+          btn.onclick = () => playAudio(u1, u2);
+          $('keyboard').appendChild(btn);
         }
-      }
+      });
+    }).catch(() => $('msg-box').innerText = "⚠️ 網路異常");
+
+    // --- 極簡化 10倍音量播放核心 ---
+    function playAudio(u1, u2) {
+      navigator.vibrate?.(50);
+      if (currentPlayer) { currentPlayer.pause(); currentPlayer.src = ''; }
+      if (currentSource) { currentSource.disconnect(); currentSource = null; }
+      clearTimeout(timeoutId);
+      attemptPlay(u1, u2, true);
     }
 
-    function createButton(text, url1, url2, index) {
-      const btn = document.createElement('button');
-      btn.className = 'key-cap';
-      // 🌟 這裡改成 8 色循環！
-      btn.classList.add(`color-${index % 8}`);
+    function attemptPlay(url, fallback, useBoost) {
+      if (!url) return fallback ? attemptPlay(fallback, null, true) : showToast("🔇 網址無效");
       
-      const span = document.createElement('span');
-      span.className = 'key-top';
-      span.innerHTML = text.replace(/\\n/g, '<br>');
-      btn.appendChild(span);
-      btn.onclick = () => playAudio(url1, url2);
-      keyboardContainer.appendChild(btn);
-    }
-
-    function showMessage(msg) {
-      const toast = document.getElementById('toast');
-      toast.innerText = msg;
-      toast.classList.add('show-toast');
-      setTimeout(() => toast.classList.remove('show-toast'), 2500);
-    }
-
-    function playAudio(primaryUrl, backupUrl) {
-      if (navigator.vibrate) navigator.vibrate(50);
-      if (currentPlayer) {
-        currentPlayer.pause();
-        currentPlayer.src = ''; 
-        currentPlayer = null;
-      }
-      if (currentSource) {
-        currentSource.disconnect();
-        currentSource = null;
-      }
-      if (timeoutId) clearTimeout(timeoutId);
-      
-      attemptPlay(primaryUrl, backupUrl, false, 1000, true);
-    }
-
-    function attemptPlay(urlToPlay, fallbackUrl, isFallback, timeoutDuration, useBoost) {
-      if (!urlToPlay) {
-        if (!isFallback && fallbackUrl) attemptPlay(fallbackUrl, null, true, 2000, true);
-        else showMessage("音效網址無效 🔇");
-        return;
-      }
-
-      currentPlayer = new Audio(urlToPlay);
-      
+      currentPlayer = new Audio(url);
       if (useBoost) {
         currentPlayer.crossOrigin = "anonymous";
         try {
           if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
           if (audioCtx.state === 'suspended') audioCtx.resume();
           currentSource = audioCtx.createMediaElementSource(currentPlayer);
-          if (!gainNode) {
-            gainNode = audioCtx.createGain();
-            gainNode.connect(audioCtx.destination);
-          }
-          gainNode.gain.value = 10.0; 
+          if (!gainNode) { gainNode = audioCtx.createGain(); gainNode.connect(audioCtx.destination); }
+          gainNode.gain.value = 10.0;
           currentSource.connect(gainNode);
-        } catch (e) {
-          console.log("混音器設定遭阻擋", e);
-        }
+        } catch(e) {}
       }
 
-      let playPromise = currentPlayer.play();
+      // 錯誤處理邏輯大整合
+      const handleFail = (msg) => {
+        if (currentSource) { currentSource.disconnect(); currentSource = null; }
+        currentPlayer.src = '';
+        if (useBoost) attemptPlay(url, fallback, false); // 阻擋放大 -> 換原音量
+        else if (fallback) { showToast(msg); attemptPlay(fallback, null, true); } // 原音也失效 -> 換備用線路
+        else showToast("🔇 播放失敗");
+      };
 
-      timeoutId = setTimeout(() => {
-        if (currentPlayer) {
-          currentPlayer.pause();
-          currentPlayer.src = ''; 
-        }
-        if (!isFallback && fallbackUrl) {
-          showMessage("主線路卡頓，切換備用... 🔄");
-          attemptPlay(fallbackUrl, null, true, 2000, true); 
-        } else {
-          showMessage("伺服器忙線中，請稍後再試 🕒");
-        }
-      }, timeoutDuration);
-
-      if (playPromise !== undefined) {
-        playPromise.then(() => {
-          clearTimeout(timeoutId); 
-        }).catch(error => {
-          clearTimeout(timeoutId);
-          if (error.name !== 'AbortError') {
-            if (useBoost) {
-              if (currentSource) {
-                currentSource.disconnect();
-                currentSource = null;
-              }
-              currentPlayer.src = ''; 
-              attemptPlay(urlToPlay, fallbackUrl, isFallback, timeoutDuration, false);
-            } else {
-              if (!isFallback && fallbackUrl) {
-                showMessage("主線路失效，切換備用... 🔄");
-                attemptPlay(fallbackUrl, null, true, 2000, true);
-              } else {
-                showMessage("播放失敗，請確認網址是否有效 🔇");
-              }
-            }
-          }
-        });
-      }
+      timeoutId = setTimeout(() => handleFail("🔄 嘗試切換..."), 2000);
+      
+      currentPlayer.play().then(() => clearTimeout(timeoutId)).catch(e => {
+        clearTimeout(timeoutId);
+        if (e.name !== 'AbortError') handleFail("🔄 嘗試切換...");
+      });
     }
   </script>
 </body>
