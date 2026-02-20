@@ -7,15 +7,14 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>吵架神器</title>
 
-<link rel="icon" type="image/png" sizes="512x512" href="IMG_20260220_102357.png?v=8">
-<link rel="apple-touch-icon" sizes="512x512" href="IMG_20260220_102357.png?v=8">
-
-<link rel="manifest" href="manifest.json?v=8">
+<link rel="icon" type="image/png" sizes="512x512" href="IMG_20260220_102357.png?v=9">
+<link rel="apple-touch-icon" sizes="512x512" href="IMG_20260220_102357.png?v=9">
+<link rel="manifest" href="manifest.json?v=9">
 
 <style>
-  /* --- 基礎排版與 UI 優化 --- */
+  /* --- 科技暗黑風基礎排版 --- */
   body {
-    background: #f8f9fa; 
+    background: #0a0a0c; /* 極致深黑背景 */
     display: flex;
     justify-content: center;
     min-height: 100vh;
@@ -27,13 +26,15 @@
     user-select: none;
   }
 
+  /* 鍵盤底盤：消光黑 + 微微的邊框與反光 */
   .keyboard-base {
-    background: #ffffff;
+    background: #1a1a1e;
     width: 90%;
     max-width: 400px;
     padding: 20px;
     border-radius: 25px;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.8), inset 0 2px 2px rgba(255,255,255,0.05);
+    border: 1px solid #2a2a30;
     display: grid;
     grid-template-columns: 1fr 1fr; 
     gap: 15px;
@@ -41,6 +42,7 @@
     height: fit-content; 
   }
 
+  /* 按鈕基礎形狀 */
   .key-cap {
     width: 100%;
     aspect-ratio: 1.4 / 1; 
@@ -56,13 +58,18 @@
     -webkit-tap-highlight-color: transparent;
     font-size: clamp(18px, 5vw, 22px);
     font-weight: 900;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.4); /* 讓字體更銳利 */
   }
 
-  /* 現代化立體按鈕配色 */
-  .color-0 { background: #ff5f6d; color: #fff; box-shadow: 0 6px 0 #d33f49; }
-  .color-1 { background: #ffdb3d; color: #5d4a00; box-shadow: 0 6px 0 #e0b300; }
-  .color-2 { background: #6bcb77; color: #fff; box-shadow: 0 6px 0 #3e9c4b; }
-  .color-3 { background: #4d96ff; color: #fff; box-shadow: 0 6px 0 #1a66d6; }
+  /* 💥 RGB 8色 霓虹發光配色 💥 */
+  .color-0 { background: #FF1744; color: #fff; box-shadow: 0 6px 0 #900019, 0 10px 20px rgba(255, 23, 68, 0.3); } /* 血怒紅 */
+  .color-1 { background: #FFEA00; color: #111; box-shadow: 0 6px 0 #948800, 0 10px 20px rgba(255, 234, 0, 0.2); text-shadow: none; } /* 閃電黃 */
+  .color-2 { background: #00E676; color: #111; box-shadow: 0 6px 0 #008745, 0 10px 20px rgba(0, 230, 118, 0.2); text-shadow: none; } /* 毒液綠 */
+  .color-3 { background: #2979FF; color: #fff; box-shadow: 0 6px 0 #003db3, 0 10px 20px rgba(41, 121, 255, 0.3); } /* 脈衝藍 */
+  .color-4 { background: #D500F9; color: #fff; box-shadow: 0 6px 0 #7b0091, 0 10px 20px rgba(213, 0, 249, 0.3); } /* 電馭紫 */
+  .color-5 { background: #00E5FF; color: #111; box-shadow: 0 6px 0 #008999, 0 10px 20px rgba(0, 229, 255, 0.2); text-shadow: none; } /* 雷射青 */
+  .color-6 { background: #FF9100; color: #fff; box-shadow: 0 6px 0 #9e5a00, 0 10px 20px rgba(255, 145, 0, 0.3); } /* 核爆橘 */
+  .color-7 { background: #FF4081; color: #fff; box-shadow: 0 6px 0 #a3003c, 0 10px 20px rgba(255, 64, 129, 0.3); } /* 猛毒粉 */
 
   .key-cap:active {
     transform: translateY(6px);
@@ -77,17 +84,18 @@
     word-break: break-word;
   }
   
-  /* --- 系統提示訊息優化 --- */
+  /* --- 系統提示訊息黑化 --- */
   #loading {
     position: fixed; 
     top: 20px;
-    background: rgba(255, 255, 255, 0.95); 
-    color: #333;
+    background: rgba(30, 30, 35, 0.95); 
+    color: #00E5FF; /* 用霓虹青色顯示載入中 */
+    border: 1px solid #333;
     padding: 10px 25px;
     border-radius: 30px;
     font-size: 14px;
     font-weight: bold;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     z-index: 10;
   }
 
@@ -96,8 +104,9 @@
     bottom: 30px;
     left: 50%;
     transform: translateX(-50%) translateY(20px);
-    background: rgba(0, 0, 0, 0.85);
-    color: white;
+    background: rgba(20, 20, 25, 0.95);
+    color: #FFEA00; /* 錯誤或提示用霓虹黃 */
+    border: 1px solid #444;
     padding: 12px 24px;
     border-radius: 30px;
     font-size: 15px;
@@ -107,14 +116,14 @@
     transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
     z-index: 100;
     white-space: nowrap;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.5);
   }
   .show-toast {
     opacity: 1 !important;
     transform: translateX(-50%) translateY(0) !important;
   }
 
-  /* --- 智慧型桌面安裝橫幅 --- */
+  /* --- 安裝橫幅黑化 --- */
   #install-prompt {
     position: fixed;
     bottom: -100px; 
@@ -123,11 +132,13 @@
     max-width: 500px;
     margin: 0 auto;
     right: 0; 
-    background: #2b2b2b;
+    background: rgba(25, 25, 30, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid #333;
     color: #fff;
     padding: 15px 20px;
     border-radius: 16px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.8);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -141,8 +152,8 @@
   .install-text { flex-grow: 1; margin-right: 15px; }
   
   #install-btn {
-    background: #ffdb3d;
-    color: #5d4a00;
+    background: #00E676; /* 安裝按鈕改成高亮毒液綠 */
+    color: #000;
     border: none;
     padding: 8px 16px;
     border-radius: 20px;
@@ -152,11 +163,12 @@
     margin-right: 12px;
     flex-shrink: 0;
     transition: transform 0.1s;
+    box-shadow: 0 0 10px rgba(0, 230, 118, 0.4);
   }
   #install-btn:active { transform: scale(0.95); }
   
   .install-close {
-    background: rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.1);
     border: none;
     color: white;
     width: 28px;
@@ -188,10 +200,8 @@
   <div class="keyboard-base" id="keyboard"></div>
 
   <script>
-    // 試算表資料源
     const googleSheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vROxIxBE1TSv_SAP17SGB4zfCC5QQvTycjUpSf366-OO-2MWB6xSPS6-SdBJ0azjBkEXd6JNohJvWbZ/pub?output=csv";
 
-    // 全域變數
     const keyboardContainer = document.getElementById('keyboard');
     let currentPlayer = null;
     let timeoutId = null; 
@@ -199,29 +209,24 @@
     let gainNode = null;
     let currentSource = null;
 
-    // --- 🚀 PWA 雙模智慧安裝邏輯 ---
     let deferredPrompt;
     const installPromptEl = document.getElementById('install-prompt');
     const installBtn = document.getElementById('install-btn');
     const isClosedBefore = localStorage.getItem('hideInstallPrompt') === 'true';
 
-    // 攔截原生安裝事件 (如果這行成功，按鈕文字會變！)
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       deferredPrompt = e;
       installBtn.innerText = "⚡ 一鍵安裝";
     });
 
-    // 點擊安裝按鈕
     installBtn.addEventListener('click', async () => {
       if (deferredPrompt) {
-        // 觸發原生安裝
         deferredPrompt.prompt();
         const { outcome } = await deferredPrompt.userChoice;
         if (outcome === 'accepted') closeInstallPrompt();
         deferredPrompt = null;
       } else {
-        // 如果 Chrome 不給一鍵安裝，彈出教學
         const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
         if (isIOS) {
           alert("🍎 蘋果手機請點擊底部「分享圖示 📤」，然後選擇「加入主畫面 ➕」即可完成安裝！");
@@ -231,12 +236,10 @@
       }
     });
 
-    // 畫面載入後，判斷是否顯示橫幅
     window.addEventListener('DOMContentLoaded', () => {
       const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
       const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
 
-      // 手機版 + 未安裝 + 未關閉過 = 顯示橫幅
       if (isMobile && !isStandalone && !isClosedBefore) {
         setTimeout(() => installPromptEl.classList.add('show'), 1500);
       }
@@ -247,7 +250,6 @@
       localStorage.setItem('hideInstallPrompt', 'true');
     }
 
-    // --- 📊 資料讀取與介面生成 ---
     fetch(googleSheetUrl)
       .then(response => response.text())
       .then(csvText => {
@@ -279,7 +281,9 @@
     function createButton(text, url1, url2, index) {
       const btn = document.createElement('button');
       btn.className = 'key-cap';
-      btn.classList.add(`color-${index % 4}`);
+      // 🌟 這裡改成 8 色循環！
+      btn.classList.add(`color-${index % 8}`);
+      
       const span = document.createElement('span');
       span.className = 'key-top';
       span.innerHTML = text.replace(/\\n/g, '<br>');
@@ -295,7 +299,6 @@
       setTimeout(() => toast.classList.remove('show-toast'), 2500);
     }
 
-    // --- 🔊 核心播放邏輯 (10倍增益與容錯) ---
     function playAudio(primaryUrl, backupUrl) {
       if (navigator.vibrate) navigator.vibrate(50);
       if (currentPlayer) {
@@ -381,4 +384,3 @@
   </script>
 </body>
 </html>
-
