@@ -6,57 +6,31 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>吵架神器</title>
-<link rel="icon" type="image/png" sizes="512x512" href="IMG_20260220_102357.png?v=9">
-<link rel="apple-touch-icon" sizes="512x512" href="IMG_20260220_102357.png?v=9">
-<link rel="manifest" href="manifest.json?v=9">
+<link rel="icon" type="image/png" sizes="512x512" href="IMG_20260220_102357.png?v=10">
+<link rel="apple-touch-icon" sizes="512x512" href="IMG_20260220_102357.png?v=10">
+<link rel="manifest" href="manifest.json?v=10">
 <style>
-  /* --- 極簡 UI 設定 --- */
   body { background: #0a0a0c; display: flex; justify-content: center; min-height: 100vh; margin: 0; padding: 40px 0; font-family: sans-serif; user-select: none; -webkit-user-select: none; }
-  #keyboard { background: #111114; width: 90%; max-width: 400px; padding: 20px; border-radius: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.9); border: 1px solid #222; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-content: start; height: fit-content; }
+  #keyboard { background: #111114; width: 90%; max-width: 400px; padding: 20px; border-radius: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.9); border: 1px solid #222; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-content: start; height: fit-content; touch-action: none; /* 禁用預設滾動，專心滑動發聲 */ }
   
-  /* 🌟 霓虹邊框核心黑魔法 🌟 */
   .key-cap { 
-    aspect-ratio: 1.4/1; 
-    border-radius: 12px; 
-    cursor: pointer; 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    font-size: clamp(18px, 5vw, 22px); 
-    font-weight: 900; 
-    transition: all 0.15s ease-out; 
-    -webkit-tap-highlight-color: transparent; 
-
-    /* 簍空底色，配上發光邊框與文字 */
-    background: transparent; 
-    border: 2px solid var(--neon); 
-    color: #fff; 
-    box-shadow: 0 0 10px var(--neon), inset 0 0 10px var(--neon);
-    text-shadow: 0 0 8px var(--neon), 0 0 20px var(--neon);
+    aspect-ratio: 1.4/1; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; 
+    font-size: clamp(18px, 5vw, 22px); font-weight: 900; transition: all 0.1s ease-out; -webkit-tap-highlight-color: transparent; 
+    background: transparent; border: 2px solid var(--neon); color: #fff; 
+    box-shadow: 0 0 10px var(--neon), inset 0 0 10px var(--neon); text-shadow: 0 0 8px var(--neon), 0 0 20px var(--neon);
   }
 
-  /* ⚡ 點擊時的電流爆閃效果 */
-  .key-cap:active { 
-    transform: scale(0.92); 
-    background: var(--neon); 
-    color: #000; 
-    box-shadow: 0 0 25px var(--neon), 0 0 50px var(--neon); 
-    text-shadow: none; 
+  /* ⚡ 加入 .hover-active 讓程式也能觸發視覺爆閃 */
+  .key-cap:active, .key-cap.hover-active { 
+    transform: scale(0.92); background: var(--neon); color: #000; 
+    box-shadow: 0 0 25px var(--neon), 0 0 50px var(--neon); text-shadow: none; 
   }
 
   .key-top { pointer-events: none; text-align: center; padding: 5px; word-break: break-word; line-height: 1.2; }
 
-  /* 🎨 用變數寫法，8 色定義只需 8 行，超級乾淨 */
-  .c0 { --neon: #FF1744; } /* 血怒紅 */
-  .c1 { --neon: #FFEA00; } /* 閃電黃 */
-  .c2 { --neon: #00E676; } /* 毒液綠 */
-  .c3 { --neon: #2979FF; } /* 脈衝藍 */
-  .c4 { --neon: #D500F9; } /* 電馭紫 */
-  .c5 { --neon: #00E5FF; } /* 雷射青 */
-  .c6 { --neon: #FF9100; } /* 核爆橘 */
-  .c7 { --neon: #FF4081; } /* 猛毒粉 */
+  .c0 { --neon: #FF1744; } .c1 { --neon: #FFEA00; } .c2 { --neon: #00E676; } .c3 { --neon: #2979FF; }
+  .c4 { --neon: #D500F9; } .c5 { --neon: #00E5FF; } .c6 { --neon: #FF9100; } .c7 { --neon: #FF4081; }
 
-  /* 浮動視窗瘦身 */
   #msg-box { position: fixed; top: 20px; background: rgba(20,20,25,0.95); color: #00E5FF; border: 1px solid #00E5FF; padding: 10px 25px; border-radius: 30px; font-weight: bold; box-shadow: 0 0 15px rgba(0,229,255,0.3); z-index: 10; transition: 0.3s; }
   #toast { position: fixed; bottom: 30px; background: rgba(20,20,25,0.95); color: #FFEA00; border: 1px solid #FFEA00; padding: 12px 24px; border-radius: 30px; font-weight: bold; opacity: 0; pointer-events: none; transition: 0.3s; z-index: 100; transform: translateY(20px); box-shadow: 0 0 15px rgba(255,234,0,0.3); }
   .show { opacity: 1 !important; transform: translateY(0) !important; }
@@ -91,7 +65,7 @@
       setTimeout(() => $('toast').classList.remove('show'), 2500);
     };
 
-    // --- PWA 智慧安裝 ---
+    // --- PWA 安裝 ---
     window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredPrompt = e; $('install-btn').innerText = "⚡ 一鍵安裝"; });
     $('install-btn').onclick = async () => {
       if (deferredPrompt) {
@@ -110,7 +84,7 @@
       }
     });
 
-    // --- 載入與生成按鈕 ---
+    // --- 載入資料 ---
     fetch(SHEET_URL).then(r => r.text()).then(csv => {
       $('msg-box').style.display = 'none';
       let i = 0;
@@ -120,15 +94,58 @@
           const btn = document.createElement('button');
           btn.className = `key-cap c${i++ % 8}`;
           btn.innerHTML = `<span class="key-top">${name.replace(/\\n/g, '<br>')}</span>`;
-          btn.onclick = () => playAudio(u1, u2);
+          // 將網址存在按鈕身上，不使用 onclick，改用滑動偵測
+          btn.dataset.u1 = u1;
+          btn.dataset.u2 = u2 || '';
           $('keyboard').appendChild(btn);
         }
       });
     }).catch(() => $('msg-box').innerText = "⚠️ 網路異常");
 
-    // --- 極簡化 10倍音量播放核心 ---
+    // --- 🎵 核心滑動與播放邏輯 🎵 ---
+    let isDragging = false;
+    let lastBtn = null;
+    const board = $('keyboard');
+
+    // 觸發器：負責亮燈與發聲
+    const trigger = (el) => {
+      const btn = el?.closest('.key-cap');
+      if (!btn || btn === lastBtn) return; // 避免同一顆按鈕重複狂叫
+      lastBtn = btn;
+
+      // 模擬被按下的視覺發光特效
+      btn.classList.add('hover-active');
+      setTimeout(() => btn.classList.remove('hover-active'), 150);
+
+      playAudio(btn.dataset.u1, btn.dataset.u2);
+    };
+
+    // 👆 手機觸控滑動魔法
+    board.addEventListener('touchstart', e => {
+      isDragging = true;
+      trigger(e.target);
+    }, {passive: false});
+
+    board.addEventListener('touchmove', e => {
+      if (!isDragging) return;
+      e.preventDefault(); // 防止畫面跟著滾動
+      const touch = e.touches[0];
+      // 偵測手指現在滑到哪個按鈕上方
+      const elem = document.elementFromPoint(touch.clientX, touch.clientY);
+      trigger(elem);
+    }, {passive: false});
+
+    // 🖱️ 支援電腦版滑鼠拖曳
+    board.onmousedown = e => { isDragging = true; trigger(e.target); };
+    board.onmouseover = e => { if(isDragging) trigger(e.target); };
+    
+    // 放開手指/滑鼠時重置狀態
+    window.addEventListener('touchend', () => { isDragging = false; lastBtn = null; });
+    window.addEventListener('mouseup', () => { isDragging = false; lastBtn = null; });
+
+    // --- 音效引擎 ---
     function playAudio(u1, u2) {
-      navigator.vibrate?.(50);
+      navigator.vibrate?.(40); // 震動回饋
       if (currentPlayer) { currentPlayer.pause(); currentPlayer.src = ''; }
       if (currentSource) { currentSource.disconnect(); currentSource = null; }
       clearTimeout(timeoutId);
@@ -167,7 +184,7 @@
       });
     }
 
-    // --- 🤫 縮小即靜音 ---
+    // 🤫 縮小即靜音
     document.addEventListener('visibilitychange', () => {
       if (document.hidden) {
         if (currentPlayer) { currentPlayer.pause(); currentPlayer.src = ''; }
