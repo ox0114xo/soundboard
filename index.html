@@ -6,11 +6,16 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>MicNuke | 吵架神器 2.0</title>
-<link rel="icon" type="image/png" sizes="512x512" href="IMG_20260220_102357.png?v=13">
-<link rel="apple-touch-icon" sizes="512x512" href="IMG_20260220_102357.png?v=13">
-<link rel="manifest" href="manifest.json?v=13">
+<link rel="icon" type="image/png" sizes="512x512" href="IMG_20260220_102357.png?v=14">
+<link rel="apple-touch-icon" sizes="512x512" href="IMG_20260220_102357.png?v=14">
+<link rel="manifest" href="manifest.json?v=14">
 <style>
-  /* --- 終極版 UI：毛玻璃與深淵背景 --- */
+  /* --- 終極版 UI 與 防放大優化 --- */
+  html, body {
+    /* 2. 關鍵優化：禁止全網頁雙擊縮放，但保留捲動 */
+    touch-action: manipulation;
+  }
+
   body { 
     background: radial-gradient(circle at 50% 0%, #1a1a24 0%, #050505 80%); 
     display: flex; flex-direction: column; align-items: center; 
@@ -38,12 +43,12 @@
 
   /* --- 控制台：開關與緊急煞車 --- */
   .control-panel { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; width: 90%; max-width: 400px; margin-bottom: 20px; font-family: sans-serif; font-weight: bold; font-size: 13px; }
-  .toggle-label { display: flex; align-items: center; gap: 5px; background: rgba(0,0,0,0.5); padding: 8px 15px; border-radius: 20px; border: 1px solid #333; color: #aaa; cursor: pointer; transition: 0.3s; }
+  .toggle-label { display: flex; align-items: center; gap: 5px; background: rgba(0,0,0,0.5); padding: 8px 15px; border-radius: 20px; border: 1px solid #333; color: #aaa; cursor: pointer; transition: 0.3s; touch-action: manipulation; }
   .toggle-label.active-10x { color: #FF1744; border-color: #FF1744; box-shadow: 0 0 10px rgba(255,23,68,0.3); }
   .toggle-label.active-combo { color: #00E676; border-color: #00E676; box-shadow: 0 0 10px rgba(0,230,118,0.3); }
   input[type="checkbox"] { display: none; }
   
-  #panic-btn { width: 100%; background: #FF1744; color: white; border: none; padding: 12px; border-radius: 12px; font-weight: 900; font-size: 16px; letter-spacing: 2px; box-shadow: 0 0 15px rgba(255,23,68,0.5); cursor: pointer; transition: 0.1s; }
+  #panic-btn { width: 100%; background: #FF1744; color: white; border: none; padding: 12px; border-radius: 12px; font-weight: 900; font-size: 16px; letter-spacing: 2px; box-shadow: 0 0 15px rgba(255,23,68,0.5); cursor: pointer; transition: 0.1s; touch-action: manipulation; }
   #panic-btn:active { transform: scale(0.95); background: #C50028; }
 
   /* --- 鍵盤毛玻璃底盤 --- */
@@ -56,6 +61,9 @@
     background: transparent; border: 2px solid var(--neon); color: #fff; 
     box-shadow: 0 0 10px var(--neon), inset 0 0 10px var(--neon); text-shadow: 0 0 8px var(--neon), 0 0 20px var(--neon);
     font-family: sans-serif; opacity: 0; animation: fade-in-up 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    
+    /* 3. 重要：單獨為按鈕加上 touch-action: none 徹底鎖死雙擊縮放的可能性 */
+    touch-action: none;
   }
   @keyframes fade-in-up { 0% { opacity: 0; transform: translateY(20px); } 100% { opacity: 1; transform: translateY(0); } }
   
@@ -109,15 +117,13 @@
     const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vROxIxBE1TSv_SAP17SGB4zfCC5QQvTycjUpSf366-OO-2MWB6xSPS6-SdBJ0azjBkEXd6JNohJvWbZ/pub?output=csv";
     const $ = id => document.getElementById(id);
     let audioCtx, gainNode, deferredPrompt;
-    let activeAudios = []; // 用來追蹤所有播放中的聲音
+    let activeAudios = [];
 
     const showToast = msg => { $('toast').innerText = msg; $('toast').classList.add('show'); setTimeout(() => $('toast').classList.remove('show'), 2000); };
 
-    // --- 開關視覺聯動 ---
     $('boost-switch').onchange = e => $('lbl-10x').classList.toggle('active-10x', e.target.checked);
     $('combo-switch').onchange = e => $('lbl-combo').classList.toggle('active-combo', e.target.checked);
 
-    // --- PWA 安裝 ---
     window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredPrompt = e; });
     $('install-btn').onclick = async () => {
       if (deferredPrompt) { deferredPrompt.prompt(); if ((await deferredPrompt.userChoice).outcome === 'accepted') closePWA(); deferredPrompt = null; } 
@@ -126,7 +132,6 @@
     const closePWA = () => { $('install-prompt').classList.remove('up'); localStorage.setItem('hidePWA', '1'); };
     window.addEventListener('DOMContentLoaded', () => { if (/Mobile|Android|iPhone/i.test(navigator.userAgent) && !window.matchMedia('(display-mode: standalone)').matches && !localStorage.getItem('hidePWA')) setTimeout(() => $('install-prompt').classList.add('up'), 1500); });
 
-    // --- 載入試算表資料 ---
     fetch(SHEET_URL).then(r => r.text()).then(csv => {
       $('msg-box').style.display = 'none';
       let validCount = 0;
@@ -136,41 +141,39 @@
           const btn = document.createElement('button');
           btn.className = `key-cap c${validCount % 8}`;
           btn.innerHTML = `<span class="key-top">${name.replace(/\\n/g, '<br>')}</span>`;
-          // ⏳ 加上交錯進場動畫的延遲
           btn.style.animationDelay = `${validCount * 0.04}s`; 
-          btn.onclick = () => playAudio(u1, u2); 
+          
+          // 使用 onclick 配合 CSS touch-action: none 是 iOS 最穩定的解法
+          btn.onclick = (e) => {
+            e.preventDefault(); // 阻斷預設行為
+            playAudio(u1, u2);
+          };
+          
           $('keyboard').appendChild(btn);
           validCount++;
         }
       });
     }).catch(() => $('msg-box').innerText = "⚠️ 網路異常");
 
-    // --- 🛑 緊急煞車 (全部靜音) ---
     $('panic-btn').onclick = () => {
       activeAudios.forEach(a => { a.pause(); a.src = ''; });
       activeAudios = [];
       updateEq();
-      navigator.vibrate?.([50, 50, 50]); // 震動三下警告
+      navigator.vibrate?.([50, 50, 50]);
       showToast("🛑 已強制靜音");
     };
 
-    // --- 頻譜更新邏輯 ---
     function updateEq() {
-      // 只要陣列裡有還在播的聲音，頻譜就跳動
       const isPlaying = activeAudios.some(a => !a.paused);
       $('eq').classList.toggle('playing', isPlaying);
     }
 
-    // --- 🎵 終極核彈音效引擎 ---
     function playAudio(u1, u2) {
       navigator.vibrate?.(50);
-      
-      // 📳 螢幕震動特效
       document.body.classList.remove('shake');
-      void document.body.offsetWidth; // 觸發重繪
+      void document.body.offsetWidth;
       document.body.classList.add('shake');
 
-      // 🔄 如果「無限疊音」沒開，就先砍掉舊聲音
       if (!$('combo-switch').checked) {
         activeAudios.forEach(a => { a.pause(); a.src = ''; });
         activeAudios = [];
@@ -183,10 +186,9 @@
       if (!url) return fallback ? attemptPlay(fallback, null, true) : showToast("🔇 網址無效");
       
       let player = new Audio(url);
-      activeAudios.push(player); // 放入監控陣列
-      player.onended = () => { updateEq(); }; // 播完更新頻譜
+      activeAudios.push(player);
+      player.onended = () => { updateEq(); };
 
-      // ☢️ 如果 10 倍開關有打開，才掛載黑魔法
       if (useBoost && $('boost-switch').checked) {
         player.crossOrigin = "anonymous";
         try {
@@ -199,21 +201,19 @@
         } catch(e) {}
       }
 
-      // 容錯機制
       player.play().then(() => updateEq()).catch(e => {
-        activeAudios = activeAudios.filter(a => a !== player); // 失敗就移出陣列
+        activeAudios = activeAudios.filter(a => a !== player);
         updateEq();
         if (e.name !== 'AbortError') {
-          if (useBoost && $('boost-switch').checked) attemptPlay(url, fallback, false); // 降級回原音量
+          if (useBoost && $('boost-switch').checked) attemptPlay(url, fallback, false);
           else if (fallback) { showToast("🔄 嘗試切換備用..."); attemptPlay(fallback, null, $('boost-switch').checked); }
           else showToast("🔇 播放失敗");
         }
       });
     }
 
-    // 🤫 縮小即靜音
     document.addEventListener('visibilitychange', () => {
-      if (document.hidden) $('panic-btn').click(); // 縮小直接觸發緊急煞車
+      if (document.hidden) $('panic-btn').click();
       else if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
     });
   </script>
