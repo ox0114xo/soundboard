@@ -12,29 +12,58 @@
 <style>
   /* --- 極簡 UI 設定 --- */
   body { background: #0a0a0c; display: flex; justify-content: center; min-height: 100vh; margin: 0; padding: 40px 0; font-family: sans-serif; user-select: none; -webkit-user-select: none; }
-  #keyboard { background: #1a1a1e; width: 90%; max-width: 400px; padding: 20px; border-radius: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.8), inset 0 2px 2px rgba(255,255,255,0.05); border: 1px solid #2a2a30; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; align-content: start; height: fit-content; }
-  .key-cap { aspect-ratio: 1.4/1; border: none; border-radius: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: clamp(18px, 5vw, 22px); font-weight: 900; text-shadow: 0 2px 4px rgba(0,0,0,0.4); transition: transform 0.1s; -webkit-tap-highlight-color: transparent; }
-  .key-cap:active { transform: translateY(6px); box-shadow: none !important; }
+  #keyboard { background: #111114; width: 90%; max-width: 400px; padding: 20px; border-radius: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.9); border: 1px solid #222; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-content: start; height: fit-content; }
+  
+  /* 🌟 霓虹邊框核心黑魔法 🌟 */
+  .key-cap { 
+    aspect-ratio: 1.4/1; 
+    border-radius: 12px; 
+    cursor: pointer; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    font-size: clamp(18px, 5vw, 22px); 
+    font-weight: 900; 
+    transition: all 0.15s ease-out; 
+    -webkit-tap-highlight-color: transparent; 
+
+    /* 簍空底色，配上發光邊框與文字 */
+    background: transparent; 
+    border: 2px solid var(--neon); 
+    color: #fff; 
+    box-shadow: 0 0 10px var(--neon), inset 0 0 10px var(--neon);
+    text-shadow: 0 0 8px var(--neon), 0 0 20px var(--neon);
+  }
+
+  /* ⚡ 點擊時的電流爆閃效果 */
+  .key-cap:active { 
+    transform: scale(0.92); 
+    background: var(--neon); 
+    color: #000; 
+    box-shadow: 0 0 25px var(--neon), 0 0 50px var(--neon); 
+    text-shadow: none; 
+  }
+
   .key-top { pointer-events: none; text-align: center; padding: 5px; word-break: break-word; line-height: 1.2; }
 
-  /* 8 色精簡化類別 */
-  .c0 { background: #FF1744; color: #fff; box-shadow: 0 6px 0 #900019, 0 10px 20px rgba(255,23,68,0.3); }
-  .c1 { background: #FFEA00; color: #111; box-shadow: 0 6px 0 #948800, 0 10px 20px rgba(255,234,0,0.2); text-shadow: none; }
-  .c2 { background: #00E676; color: #111; box-shadow: 0 6px 0 #008745, 0 10px 20px rgba(0,230,118,0.2); text-shadow: none; }
-  .c3 { background: #2979FF; color: #fff; box-shadow: 0 6px 0 #003db3, 0 10px 20px rgba(41,121,255,0.3); }
-  .c4 { background: #D500F9; color: #fff; box-shadow: 0 6px 0 #7b0091, 0 10px 20px rgba(213,0,249,0.3); }
-  .c5 { background: #00E5FF; color: #111; box-shadow: 0 6px 0 #008999, 0 10px 20px rgba(0,229,255,0.2); text-shadow: none; }
-  .c6 { background: #FF9100; color: #fff; box-shadow: 0 6px 0 #9e5a00, 0 10px 20px rgba(255,145,0,0.3); }
-  .c7 { background: #FF4081; color: #fff; box-shadow: 0 6px 0 #a3003c, 0 10px 20px rgba(255,64,129,0.3); }
+  /* 🎨 用變數寫法，8 色定義只需 8 行，超級乾淨 */
+  .c0 { --neon: #FF1744; } /* 血怒紅 */
+  .c1 { --neon: #FFEA00; } /* 閃電黃 */
+  .c2 { --neon: #00E676; } /* 毒液綠 */
+  .c3 { --neon: #2979FF; } /* 脈衝藍 */
+  .c4 { --neon: #D500F9; } /* 電馭紫 */
+  .c5 { --neon: #00E5FF; } /* 雷射青 */
+  .c6 { --neon: #FF9100; } /* 核爆橘 */
+  .c7 { --neon: #FF4081; } /* 猛毒粉 */
 
   /* 浮動視窗瘦身 */
-  #msg-box { position: fixed; top: 20px; background: rgba(30,30,35,0.95); color: #00E5FF; border: 1px solid #333; padding: 10px 25px; border-radius: 30px; font-weight: bold; box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 10; transition: 0.3s; }
-  #toast { position: fixed; bottom: 30px; background: rgba(20,20,25,0.95); color: #FFEA00; border: 1px solid #444; padding: 12px 24px; border-radius: 30px; font-weight: bold; opacity: 0; pointer-events: none; transition: 0.3s; z-index: 100; transform: translateY(20px); }
+  #msg-box { position: fixed; top: 20px; background: rgba(20,20,25,0.95); color: #00E5FF; border: 1px solid #00E5FF; padding: 10px 25px; border-radius: 30px; font-weight: bold; box-shadow: 0 0 15px rgba(0,229,255,0.3); z-index: 10; transition: 0.3s; }
+  #toast { position: fixed; bottom: 30px; background: rgba(20,20,25,0.95); color: #FFEA00; border: 1px solid #FFEA00; padding: 12px 24px; border-radius: 30px; font-weight: bold; opacity: 0; pointer-events: none; transition: 0.3s; z-index: 100; transform: translateY(20px); box-shadow: 0 0 15px rgba(255,234,0,0.3); }
   .show { opacity: 1 !important; transform: translateY(0) !important; }
 
-  #install-prompt { position: fixed; bottom: -100px; width: 90%; max-width: 500px; background: rgba(25,25,30,0.95); backdrop-filter: blur(10px); border: 1px solid #333; color: #fff; padding: 15px 20px; border-radius: 16px; display: flex; align-items: center; transition: 0.5s; z-index: 999; }
+  #install-prompt { position: fixed; bottom: -100px; width: 90%; max-width: 500px; background: rgba(15,15,18,0.95); backdrop-filter: blur(10px); border: 1px solid #333; color: #fff; padding: 15px 20px; border-radius: 16px; display: flex; align-items: center; transition: 0.5s; z-index: 999; }
   #install-prompt.up { bottom: 25px; }
-  #install-btn { background: #00E676; color: #000; border: none; padding: 8px 16px; border-radius: 20px; font-weight: bold; cursor: pointer; margin: 0 10px 0 auto; }
+  #install-btn { background: #00E676; color: #000; border: none; padding: 8px 16px; border-radius: 20px; font-weight: bold; cursor: pointer; margin: 0 10px 0 auto; box-shadow: 0 0 10px rgba(0,230,118,0.5); }
   .close-btn { background: rgba(255,255,255,0.1); border: none; color: #fff; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; }
 </style>
 </head>
@@ -53,7 +82,7 @@
 
   <script>
     const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vROxIxBE1TSv_SAP17SGB4zfCC5QQvTycjUpSf366-OO-2MWB6xSPS6-SdBJ0azjBkEXd6JNohJvWbZ/pub?output=csv";
-    const $ = id => document.getElementById(id); // 縮寫抓取元素工具
+    const $ = id => document.getElementById(id);
     let audioCtx, gainNode, currentSource, currentPlayer, timeoutId, deferredPrompt;
 
     const showToast = msg => {
@@ -89,7 +118,7 @@
         const [name, u1, u2] = row.split(',').map(s => s?.trim());
         if (name && u1) {
           const btn = document.createElement('button');
-          btn.className = `key-cap c${i++ % 8}`; // 簡化 8 色邏輯
+          btn.className = `key-cap c${i++ % 8}`;
           btn.innerHTML = `<span class="key-top">${name.replace(/\\n/g, '<br>')}</span>`;
           btn.onclick = () => playAudio(u1, u2);
           $('keyboard').appendChild(btn);
@@ -122,12 +151,11 @@
         } catch(e) {}
       }
 
-      // 錯誤處理邏輯大整合
       const handleFail = (msg) => {
         if (currentSource) { currentSource.disconnect(); currentSource = null; }
         currentPlayer.src = '';
-        if (useBoost) attemptPlay(url, fallback, false); // 阻擋放大 -> 換原音量
-        else if (fallback) { showToast(msg); attemptPlay(fallback, null, true); } // 原音也失效 -> 換備用線路
+        if (useBoost) attemptPlay(url, fallback, false);
+        else if (fallback) { showToast(msg); attemptPlay(fallback, null, true); }
         else showToast("🔇 播放失敗");
       };
 
@@ -139,28 +167,16 @@
       });
     }
 
-    // --- 🤫 縮小/退到背景時立刻靜音 ---
+    // --- 🤫 縮小即靜音 ---
     document.addEventListener('visibilitychange', () => {
       if (document.hidden) {
-        // 如果網頁被隱藏（縮小），立刻暫停並清空目前的聲音
-        if (currentPlayer) {
-          currentPlayer.pause();
-          currentPlayer.src = '';
-        }
-        if (currentSource) {
-          currentSource.disconnect();
-          currentSource = null;
-        }
-        clearTimeout(timeoutId); // 取消任何正在準備切換的備用線路
+        if (currentPlayer) { currentPlayer.pause(); currentPlayer.src = ''; }
+        if (currentSource) { currentSource.disconnect(); currentSource = null; }
+        clearTimeout(timeoutId);
       } else {
-        // 當網頁重新打開時，喚醒混音器確保下一次按按鈕有聲音
-        if (audioCtx && audioCtx.state === 'suspended') {
-          audioCtx.resume();
-        }
+        if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
       }
     });
-
-    
   </script>
 </body>
 </html>
