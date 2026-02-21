@@ -5,13 +5,51 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>吵架神器</title>
-<link rel="icon" type="image/png" sizes="512x512" href="IMG_20260220_102357.png?v=11">
-<link rel="apple-touch-icon" sizes="512x512" href="IMG_20260220_102357.png?v=11">
-<link rel="manifest" href="manifest.json?v=11">
+<title>MicNuke | 吵架神器</title>
+<link rel="icon" type="image/png" sizes="512x512" href="IMG_20260220_102357.png?v=12">
+<link rel="apple-touch-icon" sizes="512x512" href="IMG_20260220_102357.png?v=12">
+<link rel="manifest" href="manifest.json?v=12">
 <style>
-  /* --- 極簡 UI 設定 --- */
-  body { background: #0a0a0c; display: flex; justify-content: center; min-height: 100vh; margin: 0; padding: 40px 0; font-family: sans-serif; user-select: none; -webkit-user-select: none; }
+  /* --- 佈局優化：改為上下排列 --- */
+  body { 
+    background: #0a0a0c; 
+    display: flex; 
+    flex-direction: column; /* 讓標題和鍵盤上下疊放 */
+    align-items: center; 
+    min-height: 100vh; 
+    margin: 0; 
+    padding: 30px 0 50px 0; 
+    font-family: "Impact", -apple-system, sans-serif; 
+    user-select: none; 
+    -webkit-user-select: none; 
+  }
+
+  /* 🌟 帥氣標題區塊 🌟 */
+  .header {
+    text-align: center;
+    margin-bottom: 25px;
+  }
+  .main-title {
+    font-size: 3.5rem;
+    margin: 0;
+    color: #fff;
+    font-style: italic;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    /* 雷射青色霓虹光暈 */
+    text-shadow: 0 0 10px #00E5FF, 0 0 20px #00E5FF, 0 0 40px #00E5FF;
+  }
+  .sub-title {
+    font-size: 1.2rem;
+    margin: 5px 0 0 0;
+    color: #FFEA00;
+    font-weight: bold;
+    letter-spacing: 8px; /* 字距拉開更有質感 */
+    text-shadow: 0 0 10px rgba(255, 234, 0, 0.8);
+    font-family: sans-serif; /* 小字保持好閱讀 */
+  }
+
+  /* --- 鍵盤與按鈕 --- */
   #keyboard { background: #111114; width: 90%; max-width: 400px; padding: 20px; border-radius: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.9); border: 1px solid #222; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-content: start; height: fit-content; }
 
   .key-cap { 
@@ -19,6 +57,7 @@
     font-size: clamp(18px, 5vw, 22px); font-weight: 900; transition: all 0.1s ease-out; -webkit-tap-highlight-color: transparent; 
     background: transparent; border: 2px solid var(--neon); color: #fff; 
     box-shadow: 0 0 10px var(--neon), inset 0 0 10px var(--neon); text-shadow: 0 0 8px var(--neon), 0 0 20px var(--neon);
+    font-family: sans-serif;
   }
   .key-cap:active { 
     transform: scale(0.92); background: var(--neon); color: #000; 
@@ -40,6 +79,11 @@
 </style>
 </head>
 <body>
+
+  <div class="header">
+    <h1 class="main-title">MicNuke</h1>
+    <p class="sub-title">吵架神器</p>
+  </div>
 
   <div id="msg-box">📡 讀取中...</div>
   <div id="toast"></div>
@@ -92,7 +136,6 @@
           const btn = document.createElement('button');
           btn.className = `key-cap c${i++ % 8}`;
           btn.innerHTML = `<span class="key-top">${name.replace(/\\n/g, '<br>')}</span>`;
-          // 恢復原本的正常點擊模式，不阻擋網頁上下捲動
           btn.onclick = () => playAudio(u1, u2); 
           $('keyboard').appendChild(btn);
         }
