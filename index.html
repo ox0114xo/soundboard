@@ -6,15 +6,11 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>MicNuke | 吵架神器 2.0</title>
-<link rel="icon" type="image/png" sizes="512x512" href="IMG_20260220_102357.png?v=15">
-<link rel="apple-touch-icon" sizes="512x512" href="IMG_20260220_102357.png?v=15">
-<link rel="manifest" href="manifest.json?v=15">
+<link rel="icon" type="image/png" sizes="512x512" href="IMG_20260220_102357.png?v=16">
+<link rel="apple-touch-icon" sizes="512x512" href="IMG_20260220_102357.png?v=16">
+<link rel="manifest" href="manifest.json?v=16">
 <style>
-  /* --- 終極版 UI：恢復捲動與防放大 --- */
-  html, body {
-    /* 🌟 允許捲動，但禁止雙擊縮放 */
-    touch-action: manipulation;
-  }
+  html, body { touch-action: manipulation; }
 
   body { 
     background: radial-gradient(circle at 50% 0%, #1a1a24 0%, #050505 80%); 
@@ -54,16 +50,12 @@
 
   .key-cap { 
     aspect-ratio: 1.4/1; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; 
-    font-size: clamp(18px, 5vw, 22px); font-weight: 900; transition: all 0.1s ease-out; -webkit-tap-highlight-color: transparent; 
-    background: transparent; border: 2px solid var(--neon); color: #fff; 
+    font-size: clamp(18px, 5vw, 22px); font-weight: 900; transition: all 0.1s ease-out; background: transparent; border: 2px solid var(--neon); color: #fff; 
     box-shadow: 0 0 10px var(--neon), inset 0 0 10px var(--neon); text-shadow: 0 0 8px var(--neon), 0 0 20px var(--neon);
     font-family: sans-serif; opacity: 0; animation: fade-in-up 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-    
-    /* 🌟 重點修正：允許捲動，但禁止雙擊縮放 */
     touch-action: manipulation;
   }
   @keyframes fade-in-up { 0% { opacity: 0; transform: translateY(20px); } 100% { opacity: 1; transform: translateY(0); } }
-  
   .key-cap:active { transform: scale(0.92) !important; background: var(--neon); color: #000; box-shadow: 0 0 25px var(--neon), 0 0 50px var(--neon); text-shadow: none; }
   .key-top { pointer-events: none; text-align: center; padding: 5px; word-break: break-word; line-height: 1.2; }
 
@@ -73,9 +65,33 @@
   #msg-box { position: fixed; top: 20px; background: rgba(20,20,25,0.95); color: #00E5FF; border: 1px solid #00E5FF; padding: 10px 25px; border-radius: 30px; font-weight: bold; box-shadow: 0 0 15px rgba(0,229,255,0.3); z-index: 10; transition: 0.3s; }
   #toast { position: fixed; bottom: 30px; background: rgba(20,20,25,0.95); color: #FFEA00; border: 1px solid #FFEA00; padding: 12px 24px; border-radius: 30px; font-weight: bold; opacity: 0; pointer-events: none; transition: 0.3s; z-index: 100; transform: translateY(20px); }
   .show { opacity: 1 !important; transform: translateY(0) !important; }
-  #install-prompt { position: fixed; bottom: -100px; width: 90%; max-width: 500px; background: rgba(15,15,18,0.95); border: 1px solid #333; color: #fff; padding: 15px 20px; border-radius: 16px; display: flex; align-items: center; transition: 0.5s; z-index: 999; }
-  #install-prompt.up { bottom: 25px; }
-  #install-btn { background: #00E676; color: #000; border: none; padding: 8px 16px; border-radius: 20px; font-weight: bold; cursor: pointer; margin: 0 10px 0 auto; }
+
+  /* 🌟 全新視窗化：置中彈窗安裝提示 🌟 */
+  #install-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
+    display: flex; justify-content: center; align-items: center;
+    z-index: 9999; opacity: 0; pointer-events: none; transition: 0.3s ease;
+  }
+  #install-overlay.show-modal { opacity: 1; pointer-events: auto; }
+
+  #install-modal {
+    background: rgba(20, 20, 25, 0.95); border: 1px solid #00E5FF;
+    padding: 30px 25px; border-radius: 20px; text-align: center;
+    width: 80%; max-width: 320px; font-family: sans-serif;
+    box-shadow: 0 0 30px rgba(0, 229, 255, 0.2);
+    transform: scale(0.8); transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  #install-overlay.show-modal #install-modal { transform: scale(1); }
+
+  #install-modal h2 { margin: 0 0 10px 0; color: #00E5FF; text-shadow: 0 0 10px rgba(0,229,255,0.5); font-size: 22px; }
+  #install-modal p { margin: 0 0 25px 0; color: #ddd; line-height: 1.5; font-size: 15px; }
+  .modal-btns { display: flex; gap: 15px; justify-content: center; }
+  .modal-btn-cancel { background: transparent; border: 1px solid #555; color: #aaa; padding: 10px 20px; border-radius: 12px; font-weight: bold; cursor: pointer; flex: 1; transition: 0.2s; }
+  .modal-btn-cancel:active { background: #333; }
+  .modal-btn-install { background: #00E5FF; border: none; color: #000; padding: 10px 20px; border-radius: 12px; font-weight: 900; cursor: pointer; flex: 1; box-shadow: 0 0 15px rgba(0,229,255,0.5); transition: 0.2s; }
+  .modal-btn-install:active { transform: scale(0.95); }
+
 </style>
 </head>
 <body>
@@ -94,10 +110,15 @@
   <div id="msg-box">📡 武器庫連線中...</div>
   <div id="toast"></div>
 
-  <div id="install-prompt">
-    <div style="flex-grow:1; line-height: 1.4; font-family:sans-serif;">💡 <b>加到主畫面</b><br>解除封印變實體 App！</div>
-    <button id="install-btn">安裝</button>
-    <button style="background:none; border:none; color:white; font-size:16px;" onclick="closePWA()">✕</button>
+  <div id="install-overlay">
+    <div id="install-modal">
+      <h2>📲 解除封印</h2>
+      <p>將 MicNuke 加入手機主畫面<br>變成實體 App 享受零延遲炸麥！</p>
+      <div class="modal-btns">
+        <button class="modal-btn-cancel" onclick="closePWA()">先不要</button>
+        <button class="modal-btn-install" id="install-btn">⚡ 一鍵安裝</button>
+      </div>
+    </div>
   </div>
 
   <div id="keyboard"></div>
@@ -113,13 +134,25 @@
     $('boost-switch').onchange = e => $('lbl-10x').classList.toggle('active-10x', e.target.checked);
     $('combo-switch').onchange = e => $('lbl-combo').classList.toggle('active-combo', e.target.checked);
 
+    // --- PWA 視窗化控制 ---
     window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredPrompt = e; });
     $('install-btn').onclick = async () => {
-      if (deferredPrompt) { deferredPrompt.prompt(); if ((await deferredPrompt.userChoice).outcome === 'accepted') closePWA(); deferredPrompt = null; } 
-      else { alert(/iPad|iPhone/.test(navigator.userAgent) ? "🍎 點擊底部「分享 📤」➔「加入主畫面 ➕」" : "🤖 點擊右上角「 ⋮ 」➔「加到主畫面」"); }
+      if (deferredPrompt) { 
+        deferredPrompt.prompt(); 
+        if ((await deferredPrompt.userChoice).outcome === 'accepted') closePWA(); 
+        deferredPrompt = null; 
+      } else { 
+        alert(/iPad|iPhone/.test(navigator.userAgent) ? "🍎 請點擊下方「分享 📤」按鈕，選擇「加入主畫面 ➕」" : "🤖 請點擊右上角「 ⋮ 」，選擇「加到主畫面」"); 
+      }
     };
-    const closePWA = () => { $('install-prompt').classList.remove('up'); localStorage.setItem('hidePWA', '1'); };
-    window.addEventListener('DOMContentLoaded', () => { if (/Mobile|Android|iPhone/i.test(navigator.userAgent) && !window.matchMedia('(display-mode: standalone)').matches && !localStorage.getItem('hidePWA')) setTimeout(() => $('install-prompt').classList.add('up'), 1500); });
+    const closePWA = () => { $('install-overlay').classList.remove('show-modal'); localStorage.setItem('hidePWA', '1'); };
+    
+    // 判斷如果是在網頁瀏覽器中打開，1.5 秒後彈出置中視窗
+    window.addEventListener('DOMContentLoaded', () => { 
+      if (/Mobile|Android|iPhone/i.test(navigator.userAgent) && !window.matchMedia('(display-mode: standalone)').matches && !localStorage.getItem('hidePWA')) {
+        setTimeout(() => $('install-overlay').classList.add('show-modal'), 1500); 
+      }
+    });
 
     fetch(SHEET_URL).then(r => r.text()).then(csv => {
       $('msg-box').style.display = 'none';
@@ -194,4 +227,3 @@
   </script>
 </body>
 </html>
-
