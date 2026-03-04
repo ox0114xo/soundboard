@@ -6,25 +6,16 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>MicNuke | 吵架神器 2.0</title>
-<link rel="icon" type="image/png" sizes="512x512" href="IMG_20260220_102357.png?v=17">
-<link rel="apple-touch-icon" sizes="512x512" href="IMG_20260220_102357.png?v=17">
-<link rel="manifest" href="manifest.json?v=17">
+<link rel="icon" type="image/png" sizes="512x512" href="IMG_20260220_102357.png?v=18">
+<link rel="apple-touch-icon" sizes="512x512" href="IMG_20260220_102357.png?v=18">
+<link rel="manifest" href="manifest.json?v=18">
 <style>
   html, body { touch-action: manipulation; }
+  body { background: radial-gradient(circle at 50% 0%, #1a1a24 0%, #050505 80%); display: flex; flex-direction: column; align-items: center; min-height: 100vh; margin: 0; padding: 20px 0 80px 0; font-family: "Impact", -apple-system, sans-serif; user-select: none; -webkit-user-select: none; overflow-x: hidden; }
 
-  body { 
-    background: radial-gradient(circle at 50% 0%, #1a1a24 0%, #050505 80%); 
-    display: flex; flex-direction: column; align-items: center; 
-    min-height: 100vh; margin: 0; padding: 20px 0 80px 0; 
-    font-family: "Impact", -apple-system, sans-serif; user-select: none; -webkit-user-select: none; 
-    overflow-x: hidden;
-  }
-
-  /* 📳 螢幕震動特效 */
   .shake { animation: shake 0.2s cubic-bezier(.36,.07,.19,.97) both; }
   @keyframes shake { 10%, 90% { transform: translate3d(-2px, 2px, 0); } 20%, 80% { transform: translate3d(2px, -2px, 0); } 30%, 50%, 70% { transform: translate3d(-4px, 4px, 0); } 40%, 60% { transform: translate3d(4px, -4px, 0); } }
 
-  /* --- 標題與頻譜 --- */
   .header { text-align: center; margin-bottom: 15px; position: relative; }
   .main-title { font-size: 3.5rem; margin: 0; color: #fff; font-style: italic; letter-spacing: 2px; text-shadow: 0 0 10px #00E5FF, 0 0 30px #00E5FF; display: flex; align-items: center; justify-content: center; gap: 10px; }
   .sub-title { font-size: 1rem; margin: 5px 0 0 0; color: #FFEA00; letter-spacing: 6px; text-shadow: 0 0 10px rgba(255,234,0,0.8); font-family: sans-serif; font-weight: bold; }
@@ -35,7 +26,6 @@
   .eq.playing span { animation: bounce 0.5s infinite alternate ease-in; }
   @keyframes bounce { 0% { height: 5px; } 100% { height: 30px; } }
 
-  /* --- 控制台 --- */
   .control-panel { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; width: 90%; max-width: 400px; margin-bottom: 20px; font-family: sans-serif; font-weight: bold; font-size: 13px; }
   .toggle-label { display: flex; align-items: center; gap: 5px; background: rgba(0,0,0,0.5); padding: 8px 15px; border-radius: 20px; border: 1px solid #333; color: #aaa; cursor: pointer; transition: 0.3s; touch-action: manipulation; }
   .toggle-label.active-10x { color: #FF1744; border-color: #FF1744; box-shadow: 0 0 10px rgba(255,23,68,0.3); }
@@ -45,16 +35,8 @@
   #panic-btn { width: 100%; background: #FF1744; color: white; border: none; padding: 12px; border-radius: 12px; font-weight: 900; font-size: 16px; letter-spacing: 2px; box-shadow: 0 0 15px rgba(255,23,68,0.5); cursor: pointer; transition: 0.1s; touch-action: manipulation; }
   #panic-btn:active { transform: scale(0.95); background: #C50028; }
 
-  /* --- 鍵盤毛玻璃 --- */
   #keyboard { background: rgba(20, 20, 25, 0.4); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); width: 90%; max-width: 400px; padding: 20px; border-radius: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.9); border: 1px solid rgba(255,255,255,0.1); display: grid; grid-template-columns: 1fr 1fr; gap: 15px; align-content: start; }
-
-  .key-cap { 
-    aspect-ratio: 1.4/1; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; 
-    font-size: clamp(18px, 5vw, 22px); font-weight: 900; transition: all 0.1s ease-out; background: transparent; border: 2px solid var(--neon); color: #fff; 
-    box-shadow: 0 0 10px var(--neon), inset 0 0 10px var(--neon); text-shadow: 0 0 8px var(--neon), 0 0 20px var(--neon);
-    font-family: sans-serif; opacity: 0; animation: fade-in-up 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-    touch-action: manipulation;
-  }
+  .key-cap { aspect-ratio: 1.4/1; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: clamp(18px, 5vw, 22px); font-weight: 900; transition: all 0.1s ease-out; background: transparent; border: 2px solid var(--neon); color: #fff; box-shadow: 0 0 10px var(--neon), inset 0 0 10px var(--neon); text-shadow: 0 0 8px var(--neon), 0 0 20px var(--neon); font-family: sans-serif; opacity: 0; animation: fade-in-up 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; touch-action: manipulation; }
   @keyframes fade-in-up { 0% { opacity: 0; transform: translateY(20px); } 100% { opacity: 1; transform: translateY(0); } }
   .key-cap:active { transform: scale(0.92) !important; background: var(--neon); color: #000; box-shadow: 0 0 25px var(--neon), 0 0 50px var(--neon); text-shadow: none; }
   .key-top { pointer-events: none; text-align: center; padding: 5px; word-break: break-word; line-height: 1.2; }
@@ -66,24 +48,11 @@
   #toast { position: fixed; bottom: 30px; background: rgba(20,20,25,0.95); color: #FFEA00; border: 1px solid #FFEA00; padding: 12px 24px; border-radius: 30px; font-weight: bold; opacity: 0; pointer-events: none; transition: 0.3s; z-index: 100; transform: translateY(20px); }
   .show { opacity: 1 !important; transform: translateY(0) !important; }
 
-  /* 🌟 全新視窗化：置中彈窗安裝提示 */
-  #install-overlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
-    display: flex; justify-content: center; align-items: center;
-    z-index: 9999; opacity: 0; pointer-events: none; transition: 0.3s ease;
-  }
+  /* --- 彈窗樣式 --- */
+  #install-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); display: flex; justify-content: center; align-items: center; z-index: 9999; opacity: 0; pointer-events: none; transition: 0.3s ease; }
   #install-overlay.show-modal { opacity: 1; pointer-events: auto; }
-
-  #install-modal {
-    background: rgba(20, 20, 25, 0.95); border: 1px solid #00E5FF;
-    padding: 30px 25px; border-radius: 20px; text-align: center;
-    width: 80%; max-width: 320px; font-family: sans-serif;
-    box-shadow: 0 0 30px rgba(0, 229, 255, 0.2);
-    transform: scale(0.8); transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  }
+  #install-modal { background: rgba(20, 20, 25, 0.95); border: 1px solid #00E5FF; padding: 30px 25px; border-radius: 20px; text-align: center; width: 80%; max-width: 320px; font-family: sans-serif; box-shadow: 0 0 30px rgba(0, 229, 255, 0.2); transform: scale(0.8); transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
   #install-overlay.show-modal #install-modal { transform: scale(1); }
-
   #install-modal h2 { margin: 0 0 15px 0; color: #00E5FF; text-shadow: 0 0 10px rgba(0,229,255,0.5); font-size: 22px; }
   #install-modal p { margin: 0 0 25px 0; color: #ddd; line-height: 1.6; font-size: 15px; }
   .modal-btns { display: flex; gap: 15px; justify-content: center; }
@@ -91,6 +60,10 @@
   .modal-btn-cancel:active { background: #333; }
   .modal-btn-install { background: #00E5FF; border: none; color: #000; padding: 10px 20px; border-radius: 12px; font-weight: 900; cursor: pointer; flex: 1; box-shadow: 0 0 15px rgba(0,229,255,0.5); transition: 0.2s; }
   .modal-btn-install:active { transform: scale(0.95); }
+  
+  /* LINE警告專屬樣式 */
+  .line-warn h2 { color: #FF1744 !important; text-shadow: 0 0 10px rgba(255,23,68,0.5) !important; }
+  .line-warn .modal-btn-install { background: #FF1744; box-shadow: 0 0 15px rgba(255,23,68,0.5); color: #fff; }
 
 </style>
 </head>
@@ -124,6 +97,13 @@
   <div id="keyboard"></div>
 
   <script>
+    // --- 註冊 Service Worker (PWA 的靈魂憑證) ---
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch(err => console.log('SW 註冊失敗:', err));
+      });
+    }
+
     const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vROxIxBE1TSv_SAP17SGB4zfCC5QQvTycjUpSf366-OO-2MWB6xSPS6-SdBJ0azjBkEXd6JNohJvWbZ/pub?output=csv";
     const $ = id => document.getElementById(id);
     let audioCtx, gainNode, deferredPrompt;
@@ -134,20 +114,33 @@
     $('boost-switch').onchange = e => $('lbl-10x').classList.toggle('active-10x', e.target.checked);
     $('combo-switch').onchange = e => $('lbl-combo').classList.toggle('active-combo', e.target.checked);
 
-    // --- 🤖 PWA 雙系統智慧辨識 ---
-    window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredPrompt = e; });
+    window.addEventListener('beforeinstallprompt', e => { 
+      e.preventDefault(); 
+      deferredPrompt = e; 
+    });
+
     const closePWA = () => { $('install-overlay').classList.remove('show-modal'); localStorage.setItem('hidePWA', '1'); };
     
     window.addEventListener('DOMContentLoaded', () => { 
-      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+      const ua = navigator.userAgent;
+      const isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+      const isInAppBrowser = /Line|MicroMessenger|Instagram|FBAN|FBAV/i.test(ua); // 偵測 LINE / FB / IG
       
-      // 根據系統替換視窗內容
-      if (isIOS) {
+      if (isInAppBrowser) {
+        // 如果是在 LINE 或 FB 裡面打開
+        $('install-modal').classList.add('line-warn');
+        $('modal-title').innerText = "⚠️ 請用瀏覽器開啟";
+        $('modal-desc').innerHTML = "LINE 或 FB 內建瀏覽器<b>不支援安裝 App</b>！<br><br>請點擊右上角「 ⋮ 」或右下角箭頭，<br>選擇「<b>以預設瀏覽器開啟</b>」！";
+        $('install-btn').innerText = "我知道了";
+        $('install-btn').onclick = closePWA;
+      } else if (isIOS) {
+        // 蘋果 Safari
         $('modal-title').innerText = "🍎 蘋果專屬教學";
         $('modal-desc').innerHTML = "iOS 不支援一鍵安裝<br><br>請點擊螢幕下方導覽列的「分享 📤」<br>然後滑動選擇「加入主畫面 ➕」";
         $('install-btn').innerText = "我知道了";
-        $('install-btn').onclick = closePWA; // 蘋果只能關閉視窗讓他們自己按
+        $('install-btn').onclick = closePWA;
       } else {
+        // 安卓 Chrome 正常環境
         $('modal-title').innerText = "📲 解除封印";
         $('modal-desc').innerHTML = "將 MicNuke 加入手機主畫面<br>變成實體 App 享受零延遲炸麥！";
         $('install-btn').innerText = "⚡ 一鍵安裝";
@@ -157,18 +150,18 @@
             if ((await deferredPrompt.userChoice).outcome === 'accepted') closePWA(); 
             deferredPrompt = null; 
           } else {
-            // 如果是在 LINE 裡面打開，beforeinstallprompt 不會觸發
-            alert("🤖 請點擊右上角「 ⋮ 」，選擇「加到主畫面」\n(如果沒看到，請先用 Chrome 瀏覽器開啟本網頁！)"); 
+            showToast("⚠️ 系統準備中，或您已安裝過");
+            setTimeout(closePWA, 1500);
           }
         };
       }
 
-      // 如果未安裝且是手機，1.5 秒後彈出視窗
       if (/Mobile|Android|iPhone/i.test(navigator.userAgent) && !window.matchMedia('(display-mode: standalone)').matches && !localStorage.getItem('hidePWA')) {
-        setTimeout(() => $('install-overlay').classList.add('show-modal'), 1500); 
+        setTimeout(() => $('install-overlay').classList.add('show-modal'), 1000); 
       }
     });
 
+    // 以下為音效與渲染邏輯 (不變)
     fetch(SHEET_URL).then(r => r.text()).then(csv => {
       $('msg-box').style.display = 'none';
       let validCount = 0;
@@ -186,59 +179,19 @@
       });
     }).catch(() => $('msg-box').innerText = "⚠️ 網路異常");
 
-    $('panic-btn').onclick = () => {
-      activeAudios.forEach(a => { a.pause(); a.src = ''; });
-      activeAudios = [];
-      updateEq();
-      navigator.vibrate?.([50, 50, 50]);
-      showToast("🛑 已強制靜音");
-    };
-
-    function updateEq() {
-      const isPlaying = activeAudios.some(a => !a.paused);
-      $('eq').classList.toggle('playing', isPlaying);
-    }
-
-    function playAudio(u1, u2) {
-      navigator.vibrate?.(50);
-      document.body.classList.remove('shake');
-      void document.body.offsetWidth;
-      document.body.classList.add('shake');
-      if (!$('combo-switch').checked) { activeAudios.forEach(a => { a.pause(); a.src = ''; }); activeAudios = []; }
-      attemptPlay(u1, u2, true);
-    }
-
+    $('panic-btn').onclick = () => { activeAudios.forEach(a => { a.pause(); a.src = ''; }); activeAudios = []; updateEq(); navigator.vibrate?.([50, 50, 50]); showToast("🛑 已強制靜音"); };
+    function updateEq() { const isPlaying = activeAudios.some(a => !a.paused); $('eq').classList.toggle('playing', isPlaying); }
+    function playAudio(u1, u2) { navigator.vibrate?.(50); document.body.classList.remove('shake'); void document.body.offsetWidth; document.body.classList.add('shake'); if (!$('combo-switch').checked) { activeAudios.forEach(a => { a.pause(); a.src = ''; }); activeAudios = []; } attemptPlay(u1, u2, true); }
     function attemptPlay(url, fallback, useBoost) {
       if (!url) return fallback ? attemptPlay(fallback, null, true) : showToast("🔇 網址無效");
-      let player = new Audio(url);
-      activeAudios.push(player);
-      player.onended = () => { updateEq(); };
+      let player = new Audio(url); activeAudios.push(player); player.onended = () => { updateEq(); };
       if (useBoost && $('boost-switch').checked) {
         player.crossOrigin = "anonymous";
-        try {
-          if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-          if (audioCtx.state === 'suspended') audioCtx.resume();
-          let source = audioCtx.createMediaElementSource(player);
-          if (!gainNode) { gainNode = audioCtx.createGain(); gainNode.connect(audioCtx.destination); }
-          gainNode.gain.value = 10.0;
-          source.connect(gainNode);
-        } catch(e) {}
+        try { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume(); let source = audioCtx.createMediaElementSource(player); if (!gainNode) { gainNode = audioCtx.createGain(); gainNode.connect(audioCtx.destination); } gainNode.gain.value = 10.0; source.connect(gainNode); } catch(e) {}
       }
-      player.play().then(() => updateEq()).catch(e => {
-        activeAudios = activeAudios.filter(a => a !== player);
-        updateEq();
-        if (e.name !== 'AbortError') {
-          if (useBoost && $('boost-switch').checked) attemptPlay(url, fallback, false);
-          else if (fallback) { showToast("🔄 嘗試切換備用..."); attemptPlay(fallback, null, $('boost-switch').checked); }
-          else showToast("🔇 播放失敗");
-        }
-      });
+      player.play().then(() => updateEq()).catch(e => { activeAudios = activeAudios.filter(a => a !== player); updateEq(); if (e.name !== 'AbortError') { if (useBoost && $('boost-switch').checked) attemptPlay(url, fallback, false); else if (fallback) { showToast("🔄 嘗試切換..."); attemptPlay(fallback, null, $('boost-switch').checked); } else showToast("🔇 播放失敗"); } });
     }
-
-    document.addEventListener('visibilitychange', () => {
-      if (document.hidden) $('panic-btn').click();
-      else if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
-    });
+    document.addEventListener('visibilitychange', () => { if (document.hidden) $('panic-btn').click(); else if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); });
   </script>
 </body>
 </html>
