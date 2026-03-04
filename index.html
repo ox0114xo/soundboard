@@ -6,9 +6,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>MicNuke | 吵架神器 2.0</title>
-<link rel="icon" type="image/png" sizes="512x512" href="IMG_20260220_102357.png?v=16">
-<link rel="apple-touch-icon" sizes="512x512" href="IMG_20260220_102357.png?v=16">
-<link rel="manifest" href="manifest.json?v=16">
+<link rel="icon" type="image/png" sizes="512x512" href="IMG_20260220_102357.png?v=17">
+<link rel="apple-touch-icon" sizes="512x512" href="IMG_20260220_102357.png?v=17">
+<link rel="manifest" href="manifest.json?v=17">
 <style>
   html, body { touch-action: manipulation; }
 
@@ -66,7 +66,7 @@
   #toast { position: fixed; bottom: 30px; background: rgba(20,20,25,0.95); color: #FFEA00; border: 1px solid #FFEA00; padding: 12px 24px; border-radius: 30px; font-weight: bold; opacity: 0; pointer-events: none; transition: 0.3s; z-index: 100; transform: translateY(20px); }
   .show { opacity: 1 !important; transform: translateY(0) !important; }
 
-  /* 🌟 全新視窗化：置中彈窗安裝提示 🌟 */
+  /* 🌟 全新視窗化：置中彈窗安裝提示 */
   #install-overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
@@ -84,8 +84,8 @@
   }
   #install-overlay.show-modal #install-modal { transform: scale(1); }
 
-  #install-modal h2 { margin: 0 0 10px 0; color: #00E5FF; text-shadow: 0 0 10px rgba(0,229,255,0.5); font-size: 22px; }
-  #install-modal p { margin: 0 0 25px 0; color: #ddd; line-height: 1.5; font-size: 15px; }
+  #install-modal h2 { margin: 0 0 15px 0; color: #00E5FF; text-shadow: 0 0 10px rgba(0,229,255,0.5); font-size: 22px; }
+  #install-modal p { margin: 0 0 25px 0; color: #ddd; line-height: 1.6; font-size: 15px; }
   .modal-btns { display: flex; gap: 15px; justify-content: center; }
   .modal-btn-cancel { background: transparent; border: 1px solid #555; color: #aaa; padding: 10px 20px; border-radius: 12px; font-weight: bold; cursor: pointer; flex: 1; transition: 0.2s; }
   .modal-btn-cancel:active { background: #333; }
@@ -112,11 +112,11 @@
 
   <div id="install-overlay">
     <div id="install-modal">
-      <h2>📲 解除封印</h2>
-      <p>將 MicNuke 加入手機主畫面<br>變成實體 App 享受零延遲炸麥！</p>
+      <h2 id="modal-title">📲 讀取中...</h2>
+      <p id="modal-desc">...</p>
       <div class="modal-btns">
         <button class="modal-btn-cancel" onclick="closePWA()">先不要</button>
-        <button class="modal-btn-install" id="install-btn">⚡ 一鍵安裝</button>
+        <button class="modal-btn-install" id="install-btn">載入中</button>
       </div>
     </div>
   </div>
@@ -134,21 +134,36 @@
     $('boost-switch').onchange = e => $('lbl-10x').classList.toggle('active-10x', e.target.checked);
     $('combo-switch').onchange = e => $('lbl-combo').classList.toggle('active-combo', e.target.checked);
 
-    // --- PWA 視窗化控制 ---
+    // --- 🤖 PWA 雙系統智慧辨識 ---
     window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredPrompt = e; });
-    $('install-btn').onclick = async () => {
-      if (deferredPrompt) { 
-        deferredPrompt.prompt(); 
-        if ((await deferredPrompt.userChoice).outcome === 'accepted') closePWA(); 
-        deferredPrompt = null; 
-      } else { 
-        alert(/iPad|iPhone/.test(navigator.userAgent) ? "🍎 請點擊下方「分享 📤」按鈕，選擇「加入主畫面 ➕」" : "🤖 請點擊右上角「 ⋮ 」，選擇「加到主畫面」"); 
-      }
-    };
     const closePWA = () => { $('install-overlay').classList.remove('show-modal'); localStorage.setItem('hidePWA', '1'); };
     
-    // 判斷如果是在網頁瀏覽器中打開，1.5 秒後彈出置中視窗
     window.addEventListener('DOMContentLoaded', () => { 
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+      
+      // 根據系統替換視窗內容
+      if (isIOS) {
+        $('modal-title').innerText = "🍎 蘋果專屬教學";
+        $('modal-desc').innerHTML = "iOS 不支援一鍵安裝<br><br>請點擊螢幕下方導覽列的「分享 📤」<br>然後滑動選擇「加入主畫面 ➕」";
+        $('install-btn').innerText = "我知道了";
+        $('install-btn').onclick = closePWA; // 蘋果只能關閉視窗讓他們自己按
+      } else {
+        $('modal-title').innerText = "📲 解除封印";
+        $('modal-desc').innerHTML = "將 MicNuke 加入手機主畫面<br>變成實體 App 享受零延遲炸麥！";
+        $('install-btn').innerText = "⚡ 一鍵安裝";
+        $('install-btn').onclick = async () => {
+          if (deferredPrompt) { 
+            deferredPrompt.prompt(); 
+            if ((await deferredPrompt.userChoice).outcome === 'accepted') closePWA(); 
+            deferredPrompt = null; 
+          } else {
+            // 如果是在 LINE 裡面打開，beforeinstallprompt 不會觸發
+            alert("🤖 請點擊右上角「 ⋮ 」，選擇「加到主畫面」\n(如果沒看到，請先用 Chrome 瀏覽器開啟本網頁！)"); 
+          }
+        };
+      }
+
+      // 如果未安裝且是手機，1.5 秒後彈出視窗
       if (/Mobile|Android|iPhone/i.test(navigator.userAgent) && !window.matchMedia('(display-mode: standalone)').matches && !localStorage.getItem('hidePWA')) {
         setTimeout(() => $('install-overlay').classList.add('show-modal'), 1500); 
       }
@@ -164,7 +179,7 @@
           btn.className = `key-cap c${validCount % 8}`;
           btn.innerHTML = `<span class="key-top">${name.replace(/\\n/g, '<br>')}</span>`;
           btn.style.animationDelay = `${validCount * 0.04}s`; 
-          btn.onclick = () => playAudio(u1, u2);
+          btn.onclick = (e) => { e.preventDefault(); playAudio(u1, u2); };
           $('keyboard').appendChild(btn);
           validCount++;
         }
